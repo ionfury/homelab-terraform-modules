@@ -30,11 +30,11 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | The endpoint for the Talos cluster | `string` | `"10.0.0.1"` | no |
+| <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | The endpoint for the Talos cluster | `string` | `"https://cluster.local:6443"` | no |
+| <a name="input_hosts"></a> [hosts](#input\_hosts) | A map of hosts which will form the cluster. | <pre>map(object({<br>    machine_type = string<br>    ip           = string<br>    install_disk = string<br>    hostname     = optional(string)<br>  }))</pre> | <pre>{<br>  "node1": {<br>    "hostname": "control-plane-1",<br>    "install_disk": "/dev/sda",<br>    "ip": "10.0.0.1",<br>    "machine_type": "controlplane"<br>  }<br>}</pre> | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | The version of kubernetes to deploy | `string` | `"1.30.1"` | no |
 | <a name="input_name"></a> [name](#input\_name) | A name to provide for the Talos cluster | `string` | `"cluster"` | no |
-| <a name="input_nodes"></a> [nodes](#input\_nodes) | A map of node data describing the cluster. | <pre>map(object({<br>    machine_type = string<br>    ip           = string<br>    install_disk = string<br>    hostname     = optional(string)<br>  }))</pre> | <pre>{<br>  "node1": {<br>    "hostname": "control-plane-1",<br>    "install_disk": "/dev/sda",<br>    "ip": "10.0.0.1",<br>    "machine_type": "controlplane"<br>  }<br>}</pre> | no |
-| <a name="input_talos_version"></a> [talos\_version](#input\_talos\_version) | The version of Talos to use | `string` | `"1.30.1"` | no |
+| <a name="input_talos_version"></a> [talos\_version](#input\_talos\_version) | The version of Talos to use | `string` | `"1.8.0"` | no |
 
 ## Outputs
 

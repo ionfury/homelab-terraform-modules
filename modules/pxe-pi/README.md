@@ -31,10 +31,8 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_aws"></a> [aws](#input\_aws) | AWS account information. | <pre>object({<br>    region  = string<br>    profile = string<br>  })</pre> | n/a | yes |
-| <a name="input_pxeboot_host"></a> [pxeboot\_host](#input\_pxeboot\_host) | Name of the raspberry pi to use as the host for pxebootings | `string` | n/a | yes |
-| <a name="input_raspberry_pis"></a> [raspberry\_pis](#input\_raspberry\_pis) | Map of raspberry pis with their IP and MAC addresses and ssh credential stores | <pre>map(object({<br>    ip  = string<br>    mac = string<br>    ssh = object({<br>      user_store = string<br>      pass_store = string<br>    })<br>  }))</pre> | n/a | yes |
-| <a name="input_schematics_dir"></a> [schematics\_dir](#input\_schematics\_dir) | Directory containing schematics to be copied to the raspberry pi | `string` | n/a | yes |
-| <a name="input_scripts_dir"></a> [scripts\_dir](#input\_scripts\_dir) | Directory containing scripts to be copied to the raspberry pi | `string` | n/a | yes |
+| <a name="input_raspberry_pi"></a> [raspberry\_pi](#input\_raspberry\_pi) | Name of the raspberry pi to use as the host for pxebootings | `string` | n/a | yes |
+| <a name="input_raspberry_pis"></a> [raspberry\_pis](#input\_raspberry\_pis) | Map of Raspberry Pis with their service, LAN, and SSH details | <pre>map(object({<br>    service = object({<br>      role = string<br>    })<br>    lan = object({<br>      ip  = string<br>      mac = string<br>    })<br>    ssh = object({<br>      user_store = string<br>      pass_store = string<br>    })<br>  }))</pre> | n/a | yes |
 
 ## Outputs
 

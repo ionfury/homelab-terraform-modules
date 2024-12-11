@@ -7,7 +7,7 @@ variable "name" {
 variable "endpoint" {
   description = "The endpoint for the Talos cluster"
   type        = string
-  default     = "10.0.0.1"
+  default     = "https://cluster.local:6443"
 }
 
 variable "kubernetes_version" {
@@ -19,11 +19,11 @@ variable "kubernetes_version" {
 variable "talos_version" {
   description = "The version of Talos to use"
   type        = string
-  default     = "1.30.1"
+  default     = "1.8.0"
 }
 
-variable "nodes" {
-  description = "A map of node data describing the cluster."
+variable "hosts" {
+  description = "A map of hosts which will form the cluster."
   type = map(object({
     machine_type = string
     ip           = string
