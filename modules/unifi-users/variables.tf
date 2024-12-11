@@ -18,8 +18,9 @@ variable "unifi" {
 
 variable "unifi_users" {
   description = "List of users to add to the Unifi controller."
-  type = list(object({
-    ip  = string
-    mac = string
+  type = map(object({
+    name = string
+    ip   = string
+    mac  = string
   }))
 }
