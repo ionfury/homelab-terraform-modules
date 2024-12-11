@@ -14,9 +14,6 @@ variable "raspberry_pi" {
 variable "raspberry_pis" {
   description = "Map of Raspberry Pis with their service, LAN, and SSH details"
   type = map(object({
-    service = object({
-      role = string
-    })
     lan = object({
       ip  = string
       mac = string
