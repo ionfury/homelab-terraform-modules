@@ -1,5 +1,5 @@
 variable "aws" {
-  description = "AWS account information."
+  description = "AWS account information"
   type = object({
     region  = string
     profile = string
