@@ -1,5 +1,5 @@
 locals {
-  note = "Managed by Terraform"
+  note = "Managed by Terraform."
 }
 
 resource "unifi_user" "user" {
