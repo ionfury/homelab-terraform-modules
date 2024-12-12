@@ -22,26 +22,3 @@ variable "talos_version" {
   default     = "1.8.0"
 }
 
-variable "hosts" {
-  description = "A map of hosts which will form the cluster."
-  type = map(object({
-    machine_type = string
-    ip           = string
-    install_disk = string
-    hostname     = optional(string)
-  }))
-
-  default = {
-    node1 = {
-      machine_type = "controlplane"
-      ip           = "10.0.0.1"
-      install_disk = "/dev/sda"
-      hostname     = "control-plane-1"
-    }
-  }
-
-  validation {
-    condition     = alltrue([for node in var.nodes : node.machine_type == "worker" || node.machine_type == "controlplane"])
-    error_message = "The machine_type must be either 'worker' or 'controlplane'."
-  }
-}

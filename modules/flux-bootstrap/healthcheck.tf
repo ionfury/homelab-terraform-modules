@@ -11,6 +11,7 @@ resource "healthchecksio_check" "cluster_heartbeat" {
   schedule = "* * * * *" # every minute
   timezone = "UTC"
 
+
   channels = [
     data.healthchecksio_channel.discord.id
   ]

@@ -1,30 +1,47 @@
 version: "3"
 
 tasks:
-  
-  #zsh-autocompletion:
-  #  desc: https://terraform-docs.io/user-guide/installation/#zsh
-  #  cmds:
-  #    - terraform-docs completion zsh > /usr/local/share/zsh/site-functions/_terraform-docs
-  #    - autoload -U compinit && compinit
-  all:
-    desc: Runs all terraform tasks.
+
+  check:
+    desc: Checks if the terraform configuration files are formatted and linted.
+    cmds:
+      - task: fmt-check
+      - task: lint-check
+      - task: docs-check
+
+  fix:
+    desc: Fixes the formatting of the terraform configuration files.
     cmds:
       - task: fmt
       - task: lint
       - task: docs
 
+  lint:
+    desc: Lints the terraform configuration files.
+    cmds:
+      - tflint --recursive --fix
+
+  lint-check:
+    desc: Checks if the terraform configuration files are linted.
+    cmds:
+      - tflint --recursive
+
   fmt:
-    desc: Formats terraform configuration files.
+    desc: Formats the terraform configuration files.
     cmds:
       - terraform fmt -recursive
 
-  lint:
-    desc: Lints terraform configuration files.
+  fmt-check:
+    desc: Checks if the terraform configuration files are formatted.
     cmds:
-      - tflint
+      - terraform fmt -recursive -check
   
+  docs-check:
+    desc: Checks if the terraform configuration files are documented.
+    cmds:
+      - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown --output-file README.md --output-check .' \;
+
   docs:
     desc: Generates docs for all terraform modules.
     cmds: 
-      - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown . > README.md' \;
+      - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown --output-file README.md .' \;

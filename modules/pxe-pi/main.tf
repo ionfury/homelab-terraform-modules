@@ -1,14 +1,14 @@
 data "aws_ssm_parameter" "pxeboot_user" {
-  name = lookup(var.raspberry_pis, var.raspberry_pi).ssh.user_store
+  name = var.raspberry_pis[var.raspberry_pi].ssh.user_store
 }
 
 data "aws_ssm_parameter" "pxeboot_password" {
-  name = lookup(var.raspberry_pis, var.raspberry_pi).ssh.pass_store
+  name = var.raspberry_pis[var.raspberry_pi].ssh.pass_store
 }
 
 resource "ansible_playbook" "setup_iptables" {
   playbook                = "${path.module}/playbooks/setup_iptables.yaml"
-  name                    = lookup(var.raspberry_pis, var.raspberry_pi).lan.ip
+  name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
   extra_vars = {
@@ -19,7 +19,7 @@ resource "ansible_playbook" "setup_iptables" {
 
 resource "ansible_playbook" "setup_tftp_server" {
   playbook                = "${path.module}/playbooks/setup_tftp_server.yaml"
-  name                    = lookup(var.raspberry_pis, var.raspberry_pi).lan.ip
+  name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
   extra_vars = {
@@ -31,7 +31,7 @@ resource "ansible_playbook" "setup_tftp_server" {
 resource "ansible_playbook" "setup_ipxe" {
   depends_on              = [ansible_playbook.setup_tftp_server]
   playbook                = "${path.module}/playbooks/setup_ipxe.yaml"
-  name                    = lookup(var.raspberry_pis, var.raspberry_pi).lan.ip
+  name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
   extra_vars = {

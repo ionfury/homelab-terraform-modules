@@ -12,8 +12,8 @@ resource "kubernetes_secret" "access_key" {
   }
 
   data = {
-    access_key        = "${var.external_secrets_access_key_id}"
-    secret_access_key = "${var.external_secrets_access_key_secret}"
+    access_key        = var.external_secrets_access_key_id
+    secret_access_key = var.external_secrets_access_key_secret
   }
 }
 
@@ -25,9 +25,9 @@ resource "kubernetes_secret" "ssh_key" {
   }
 
   data = {
-    identity       = "${var.github_ssh_key}"
-    "identity.pub" = "${var.github_ssh_pub}"
-    known_hosts    = "${var.known_hosts}"
+    identity       = var.github_ssh_key
+    "identity.pub" = var.github_ssh_pub
+    known_hosts    = var.known_hosts
   }
 }
 
