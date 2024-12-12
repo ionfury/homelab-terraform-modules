@@ -6,8 +6,6 @@ on:
       - closed
     branches:
       - master
-    paths:
-      - 'modules/**'
 
 jobs:
   build:
