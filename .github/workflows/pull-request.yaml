@@ -5,6 +5,8 @@ on:
   pull_request:
     branches:
       - main
+    paths:
+      - 'modules/**'
 
 env:
   terraform_version: '1.6.6'
