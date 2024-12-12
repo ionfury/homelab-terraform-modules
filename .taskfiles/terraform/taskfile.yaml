@@ -8,6 +8,7 @@ tasks:
       - task: fmt-check
       - task: lint-check
       - task: docs-check
+      - task: validate
 
   fix:
     desc: Fixes the formatting of the terraform configuration files.
@@ -45,3 +46,8 @@ tasks:
     desc: Generates docs for all terraform modules.
     cmds: 
       - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown --output-file README.md .' \;
+
+  validate:
+    desc: Validates the terraform configuration files.
+    cmds:
+      - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1  -exec sh -c 'cd "{}" && terraform init --backend=false && terraform validate' \;
