@@ -13,7 +13,7 @@ resource "ansible_playbook" "setup_iptables" {
   ignore_playbook_failure = false
   extra_vars = {
     ansible_user     = data.aws_ssm_parameter.pxeboot_user.value
-    ansible_password = data.aws_ssm_parameter.pxeboot_password.value
+    ansible_password = data.aws_ssm_parameter.pxeboot_password.valueasdf
   }
 }
 
