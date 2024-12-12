@@ -7,12 +7,12 @@ variable "aws" {
 }
 
 variable "raspberry_pi" {
-  description = "Name of the raspberry pi to use as the host for pxebootings"
+  description = "Name of the raspberry pi to use as the host for pxebootings."
   type        = string
 }
 
 variable "raspberry_pis" {
-  description = "Map of Raspberry Pis with their service, LAN, and SSH details"
+  description = "Map of Raspberry Pis with their service, LAN, and SSH details."
   type = map(object({
     lan = object({
       ip  = string

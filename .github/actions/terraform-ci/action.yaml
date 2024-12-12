@@ -19,21 +19,20 @@ inputs:
 runs:
   using: 'composite'
   steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-
-    - name: Setup Task
-      uses: illbjorn/setup-taskfile@main
+    - name: Setup Taskfile
+      uses: Illbjorn/setup-task@0.1.0
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
       with:
         terraform_version: ${{ inputs.terraform_version }}
 
-    - uses: lablabs/setup-terraform-docs@v1
-      name: Setup Terraform docs
+    - name: Install a binary from GitHub releases
+      uses: jaxxstorm/action-install-gh-release@v1.14.0
       with:
-        terraform_docs_version: ${{ inputs.terraform_docs_version }}
+        repo: terraform-docs/terraform-docs
+        tag: ${{ inputs.terraform_docs_version }}
+  
 
     - uses: terraform-linters/setup-tflint@v4
       name: Setup TFLint
