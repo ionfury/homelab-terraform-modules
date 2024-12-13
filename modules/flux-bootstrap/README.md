@@ -64,7 +64,7 @@ No modules.
 | Name | Version |
 |------|---------|
 | <a name="provider_flux"></a> [flux](#provider\_flux) | 1.0.1 |
-| <a name="provider_healthchecksio"></a> [healthchecksio](#provider\_healthchecksio) | >=1.10.0 |
+| <a name="provider_healthchecksio"></a> [healthchecksio](#provider\_healthchecksio) | 2.0.0 |
 | <a name="provider_kubernetes"></a> [kubernetes](#provider\_kubernetes) | 2.25.2 |
 
 ## Modules
@@ -86,7 +86,7 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster. | `string` | n/a | yes |
+| <a name="input_cluster_name"></a> [cluster\_name](#input\_cluster\_name) | Name of the cluster | `string` | n/a | yes |
 | <a name="input_external_secrets_access_key_id"></a> [external\_secrets\_access\_key\_id](#input\_external\_secrets\_access\_key\_id) | n/a | `string` | n/a | yes |
 | <a name="input_external_secrets_access_key_secret"></a> [external\_secrets\_access\_key\_secret](#input\_external\_secrets\_access\_key\_secret) | n/a | `string` | n/a | yes |
 | <a name="input_github_ssh_key"></a> [github\_ssh\_key](#input\_github\_ssh\_key) | SSH key for accessing github\_url. | `string` | n/a | yes |
