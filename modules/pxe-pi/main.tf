@@ -7,7 +7,7 @@ data "aws_ssm_parameter" "pxeboot_password" {
 }
 
 resource "ansible_playbook" "setup_iptables" {
-  playbook                = "${path.module}/playbooks/setup_iptables.yaml"
+  playbook                = "${path.module}/resources/playbooks/setup_iptables.yaml"
   name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
@@ -18,7 +18,7 @@ resource "ansible_playbook" "setup_iptables" {
 }
 
 resource "ansible_playbook" "setup_tftp_server" {
-  playbook                = "${path.module}/playbooks/setup_tftp_server.yaml"
+  playbook                = "${path.module}/resources/playbooks/setup_tftp_server.yaml"
   name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
@@ -30,7 +30,7 @@ resource "ansible_playbook" "setup_tftp_server" {
 
 resource "ansible_playbook" "setup_ipxe" {
   depends_on              = [ansible_playbook.setup_tftp_server]
-  playbook                = "${path.module}/playbooks/setup_ipxe.yaml"
+  playbook                = "${path.module}/resources/playbooks/setup_ipxe.yaml"
   name                    = var.raspberry_pis[var.raspberry_pi].lan.ip
   replayable              = true
   ignore_playbook_failure = false
