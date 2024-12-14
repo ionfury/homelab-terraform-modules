@@ -55,7 +55,7 @@ variable "hosts" {
   }))
 
   validation {
-    condition     = alltrue([for host in var.hosts : node.machine_type == "worker" || node.machine_type == "controlplane" || node.machine_type == "none"])
-    error_message = "The machine_type must be either 'worker', 'controlplane', or 'none'."
+    condition     = alltrue([for host in var.hosts : host.cluster.role == "worker" || host.cluster.role == "controlplane" || host.cluster.role == "none"])
+    error_message = "The cluster.role must be either 'worker', 'controlplane', or 'none'."
   }
 }
