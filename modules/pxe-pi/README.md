@@ -52,8 +52,8 @@ No outputs.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_ansible"></a> [ansible](#provider\_ansible) | ~> 1.3.0 |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~>5.80.0 |
+| <a name="provider_ansible"></a> [ansible](#provider\_ansible) | 1.3.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.80.0 |
 
 ## Modules
 
@@ -73,9 +73,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws"></a> [aws](#input\_aws) | AWS account information. | <pre>object({<br>    region  = string<br>    profile = string<br>  })</pre> | n/a | yes |
-| <a name="input_raspberry_pi"></a> [raspberry\_pi](#input\_raspberry\_pi) | Name of the raspberry pi to use as the host for pxebootings | `string` | n/a | yes |
-| <a name="input_raspberry_pis"></a> [raspberry\_pis](#input\_raspberry\_pis) | Map of Raspberry Pis with their service, LAN, and SSH details | <pre>map(object({<br>    lan = object({<br>      ip  = string<br>      mac = string<br>    })<br>    ssh = object({<br>      user_store = string<br>      pass_store = string<br>    })<br>  }))</pre> | n/a | yes |
+| <a name="input_aws"></a> [aws](#input\_aws) | AWS account information | <pre>object({<br/>    region  = string<br/>    profile = string<br/>  })</pre> | n/a | yes |
+| <a name="input_raspberry_pi"></a> [raspberry\_pi](#input\_raspberry\_pi) | Name of the raspberry pi to use as the host for pxebootings. | `string` | n/a | yes |
+| <a name="input_raspberry_pis"></a> [raspberry\_pis](#input\_raspberry\_pis) | Map of Raspberry Pis with their service, LAN, and SSH details. | <pre>map(object({<br/>    lan = object({<br/>      ip  = string<br/>      mac = string<br/>    })<br/>    ssh = object({<br/>      user_store = string<br/>      pass_store = string<br/>    })<br/>  }))</pre> | n/a | yes |
 
 ## Outputs
 
