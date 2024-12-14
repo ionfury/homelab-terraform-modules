@@ -18,7 +18,7 @@ resource "talos_machine_configuration_apply" "hosts" {
       hostname     = each.key
       install_disk = each.value.disk.install
     }),
-    each.value.cluster.role == "controlplane" ? file("${path.module}/files/cp-scheduling.yaml") : null
+    each.value.cluster.role == "controlplane" ? file("${path.module}/resources/files/cp-scheduling.yaml") : null
   ]
 }
 
