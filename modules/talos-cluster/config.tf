@@ -12,7 +12,7 @@ data "talos_machine_configuration" "control_plane" {
 data "talos_client_configuration" "this" {
   cluster_name         = var.name
   client_configuration = talos_machine_secrets.this.client_configuration
-  endpoints            = [for host_key, host in var.hosts : host.lan.ip if host.machine_type == "controlplane" && host.cluster.member == var.name]
+  endpoints            = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane" && host.cluster.member == var.name]
 }
 
 resource "local_file" "kubeconfig" {

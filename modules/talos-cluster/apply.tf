@@ -11,14 +11,14 @@ resource "talos_machine_configuration_apply" "hosts" {
   machine_configuration_input = data.talos_machine_configuration.control_plane.machine_configuration
   for_each                    = local.cluster_hosts
   node                        = each.key
-  endpoint                    = each.value.lan.ip
+  endpoint                    = each.value.lan[0].ip
 
   config_patches = [
     templatefile("${path.module}/resources/templates/install-disk-and-hostname.yaml.tmpl", {
       hostname     = each.key
       install_disk = each.value.disk.install
     }),
-    each.value.machine_type == "controlplane" ? file("${path.module}/files/cp-scheduling.yaml") : null
+    each.value.cluster.role == "controlplane" ? file("${path.module}/files/cp-scheduling.yaml") : null
   ]
 }
 
@@ -27,12 +27,12 @@ resource "talos_machine_bootstrap" "this" {
 
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
-  endpoint             = [for host_key, host in var.hosts : host.lan.ip if host.cluster.role == "controlplane"][0]
+  endpoint             = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
 }
 
 resource "talos_cluster_kubeconfig" "this" {
   depends_on           = [talos_machine_bootstrap.this]
   client_configuration = talos_machine_secrets.this.client_configuration
   node                 = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
-  endpoint             = [for host_key, host in var.hosts : host.lan.ip if host.cluster.role == "controlplane"][0]
+  endpoint             = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
 }
