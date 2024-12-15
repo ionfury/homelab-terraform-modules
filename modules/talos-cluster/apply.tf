@@ -1,15 +1,7 @@
-locals {
-  cluster_hosts = {
-    for host, details in var.hosts : host => details
-    if details.cluster.member == var.name
-  }
-}
-
-
 resource "talos_machine_configuration_apply" "hosts" {
   client_configuration        = talos_machine_secrets.this.client_configuration
   machine_configuration_input = data.talos_machine_configuration.control_plane.machine_configuration
-  for_each                    = local.cluster_hosts
+  for_each                    = var.hosts
   node                        = each.key
   endpoint                    = each.value.lan[0].ip
 
@@ -26,13 +18,13 @@ resource "talos_machine_bootstrap" "this" {
   depends_on = [talos_machine_configuration_apply.hosts]
 
   client_configuration = talos_machine_secrets.this.client_configuration
-  node                 = [for host_key, host in local.cluster_hosts : host_key if host.cluster.role == "controlplane"][0]
-  endpoint             = [for host_key, host in local.cluster_hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
+  node                 = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
+  endpoint             = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
 }
 
 resource "talos_cluster_kubeconfig" "this" {
   depends_on           = [talos_machine_bootstrap.this]
   client_configuration = talos_machine_secrets.this.client_configuration
-  node                 = [for host_key, host in local.cluster_hosts : host_key if host.cluster.role == "controlplane"][0]
-  endpoint             = [for host_key, host in local.cluster_hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
+  node                 = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
+  endpoint             = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
 }
