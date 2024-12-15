@@ -38,14 +38,14 @@ fi
 
 echo "Latest version: $latest_version"
 
+first_schematic_id=""
+
 # Generate iPXE script
 ipxe_script="$output_directory/config.ipxe"
 echo "#!ipxe" > "$ipxe_script"
 echo "set timeout 30000" >> "$ipxe_script"
 echo "menu iPXE Boot Menu" >> "$ipxe_script"
 echo "item --gap -- ----------------------------" >> "$ipxe_script"
-echo "item disk Boot from local disk" >> "$ipxe_script"
-
 for schematic_file_path in "$schematics_directory"/*; do
   if [[ -f "$schematic_file_path" ]]; then
     schematic_file_name=$(basename "$schematic_file_path" | sed 's/\.[^.]*$//').ipxe
@@ -79,7 +79,8 @@ imgfree
 done
 
 # Add boot commands to the iPXE script
-echo "choose --default disk --timeout 30000 target && goto \${target}" >> "$ipxe_script"
+echo "item disk Boot from local disk" >> "$ipxe_script"
+echo "choose --default $schematic_tag --timeout 10000 target && goto \${target}" >> "$ipxe_script"
 echo ":disk" >> "$ipxe_script"
 echo "sanboot --no-describe --drive 0x80" >> "$ipxe_script"
 
