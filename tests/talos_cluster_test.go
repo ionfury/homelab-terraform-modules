@@ -2,6 +2,7 @@ package test
 
 import (
 	"testing"
+	"time"
 
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/shell"
@@ -49,14 +50,24 @@ func confirmClusterWithTalosctl(t *testing.T, terraformOptions *terraform.Option
 func confirmClusterWithKubectl(t *testing.T, terraformOptions *terraform.Options) {
 	kubeConfigPath := terraform.Output(t, terraformOptions, "kubernetes_config_file_path")
 
-	kubectlCmd := shell.Command{
-		Command: "kubectl",
-		Args:    []string{"--kubeconfig", kubeConfigPath, "get", "nodes"},
+	maxRetries := 12
+	retryInterval := 10 * time.Second
+
+	for i := 0; i < maxRetries; i++ {
+		kubectlCmd := shell.Command{
+			Command: "kubectl",
+			Args:    []string{"--kubeconfig", kubeConfigPath, "get", "nodes"},
+		}
+
+		output, err := shell.RunCommandAndGetOutputE(t, kubectlCmd)
+		if err == nil && assert.Contains(t, output, "Ready", "Kubernetes cluster is not up and functional") {
+			return
+		}
+
+		time.Sleep(retryInterval)
 	}
 
-	output, err := shell.RunCommandAndGetOutputE(t, kubectlCmd)
-	assert.NoError(t, err, "Failed to run kubectl command")
-	assert.Contains(t, output, "Ready", "Kubernetes cluster is not up and functional")
+	t.Fatalf("Kubernetes cluster did not become ready within the expected time")
 }
 
 func resetClusterToMaintenanceMode(t *testing.T, terraformOptions *terraform.Options) {
