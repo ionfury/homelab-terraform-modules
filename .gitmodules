@@ -1,3 +1,0 @@
-[submodule "tests/homelab-infrastructure"]
-	path = tests/homelab-infrastructure
-	url = https://github.com/ionfury/homelab-infrastructure.git
