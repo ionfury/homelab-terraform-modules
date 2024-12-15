@@ -37,7 +37,7 @@ resource "ansible_playbook" "setup_ipxe" {
   extra_vars = {
     ansible_user     = data.aws_ssm_parameter.pxeboot_user.value
     ansible_password = data.aws_ssm_parameter.pxeboot_password.value
-    schematics_dir   = "${path.module}/resources/schematics"
-    scripts_dir      = "${path.module}/resources/scripts"
+    schematics_dir   = "${path.module}/../schematics"
+    scripts_dir      = "${path.module}/../scripts"
   }
 }
