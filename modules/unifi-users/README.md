@@ -50,8 +50,8 @@ No outputs.
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws"></a> [aws](#provider\_aws) | ~>5.80.0 |
-| <a name="provider_unifi"></a> [unifi](#provider\_unifi) | ~>0.41.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | 5.80.0 |
+| <a name="provider_unifi"></a> [unifi](#provider\_unifi) | 0.41.0 |
 
 ## Modules
 
@@ -69,9 +69,9 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_aws"></a> [aws](#input\_aws) | AWS account information. | <pre>object({<br>    region  = string<br>    profile = string<br>  })</pre> | n/a | yes |
-| <a name="input_unifi"></a> [unifi](#input\_unifi) | Unifi controller information | <pre>object({<br>    address        = string<br>    username_store = string<br>    password_store = string<br>    site           = string<br>  })</pre> | n/a | yes |
-| <a name="input_unifi_users"></a> [unifi\_users](#input\_unifi\_users) | List of users to add to the Unifi controller. | <pre>map(object({<br>    ip  = string<br>    mac = string<br>  }))</pre> | n/a | yes |
+| <a name="input_aws"></a> [aws](#input\_aws) | AWS account information. | <pre>object({<br/>    region  = string<br/>    profile = string<br/>  })</pre> | n/a | yes |
+| <a name="input_unifi"></a> [unifi](#input\_unifi) | Unifi controller information | <pre>object({<br/>    address        = string<br/>    username_store = string<br/>    password_store = string<br/>    site           = string<br/>  })</pre> | n/a | yes |
+| <a name="input_unifi_users"></a> [unifi\_users](#input\_unifi\_users) | List of users to add to the Unifi controller. | <pre>map(object({<br/>    ip  = string<br/>    mac = string<br/>  }))</pre> | n/a | yes |
 
 ## Outputs
 
