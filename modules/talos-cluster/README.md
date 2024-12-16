@@ -35,8 +35,8 @@ No modules.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | The endpoint for the Talos cluster | `string` | `"https://cluster.local:6443"` | no |
-| <a name="input_hosts"></a> [hosts](#input\_hosts) | A map of current hosts.  Hosts to join the cluster are determined by their cluster.member label matching var.name. | <pre>map(object({<br/>    cluster = object({<br/>      member = string<br/>      role   = string<br/>    })<br/>    disk = object({<br/>      install = string<br/>    })<br/>    lan = list(object({<br/>      ip  = string<br/>      mac = string<br/>    }))<br/>    ipmi = object({<br/>      ip  = string<br/>      mac = string<br/>    })<br/>  }))</pre> | n/a | yes |
+| <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | The endpoint for the Talos cluster | `string` | `"https://192.168.10.246:6443"` | no |
+| <a name="input_hosts"></a> [hosts](#input\_hosts) | A map of current hosts.  Hosts to join the cluster are determined by their cluster.member label matching var.name. | <pre>map(object({<br/>    cluster = object({<br/>      member = string<br/>      role   = string<br/>    })<br/>    disk = object({<br/>      install = string<br/>    })<br/>    lan = list(object({<br/>      ip  = string<br/>      mac = string<br/>    }))<br/>    ipmi = object({<br/>      ip  = string<br/>      mac = string<br/>    })<br/>  }))</pre> | <pre>{<br/>  "node46": {<br/>    "cluster": {<br/>      "member": "cluster",<br/>      "role": "controlplane"<br/>    },<br/>    "disk": {<br/>      "install": "/dev/sda"<br/>    },<br/>    "ipmi": {<br/>      "ip": "192.168.10.231",<br/>      "mac": "ac:1f:6b:68:2b:e1"<br/>    },<br/>    "lan": [<br/>      {<br/>        "ip": "192.168.10.246",<br/>        "mac": "ac:1f:6b:2d:c0:22"<br/>      }<br/>    ]<br/>  }<br/>}</pre> | no |
 | <a name="input_kubernetes_config_path"></a> [kubernetes\_config\_path](#input\_kubernetes\_config\_path) | The path to the Kubernetes configuration file | `string` | `"~/.kube"` | no |
 | <a name="input_kubernetes_version"></a> [kubernetes\_version](#input\_kubernetes\_version) | The version of kubernetes to deploy | `string` | `"1.30.1"` | no |
 | <a name="input_name"></a> [name](#input\_name) | A name to provide for the Talos cluster | `string` | `"cluster"` | no |
@@ -45,5 +45,8 @@ No modules.
 
 ## Outputs
 
-No outputs.
+| Name | Description |
+|------|-------------|
+| <a name="output_kubernetes_config_file_path"></a> [kubernetes\_config\_file\_path](#output\_kubernetes\_config\_file\_path) | n/a |
+| <a name="output_talos_config_file_path"></a> [talos\_config\_file\_path](#output\_talos\_config\_file\_path) | n/a |
 <!-- END_TF_DOCS -->
