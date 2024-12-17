@@ -14,7 +14,8 @@ tasks:
       - defer: rm -Rf {{ .OUTPUT_DIR}}
       - "{{ .SCRIPT_PATH }} {{ .SCHEMATICS_DIR }} {{ .OUTPUT_DIR}} {{ .TALOS_FACTORY_URL }}"
       - cat "{{ .OUTPUT_DIR }}/config.ipxe"
-  talos-cluster:
-    desc: Tests the talos-cluster module.
+
+  talos-cluster-single-node:
+    desc: Tests creating a single node talos cluster.
     cmds:
-      - go test -v -timeout 10m -run TestTalosClusterSingleNode
+      - (cd tests && go test -v -timeout 10m -run TestTalosClusterSingleNode)
