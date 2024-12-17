@@ -19,7 +19,7 @@ variable "kubernetes_version" {
 variable "talos_version" {
   description = "The version of Talos to use."
   type        = string
-  default     = "1.8.3"
+  default     = "v1.8.3"
 }
 
 variable "talos_config_path" {
