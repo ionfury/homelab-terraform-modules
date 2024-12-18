@@ -24,6 +24,20 @@ data "talos_client_configuration" "this" {
   nodes                = local.nodes
 }
 
+# This prevents the module from reporting completion until the cluster is up and operational.
+#tflint-ignore: terraform_unused_declarations
+data "talos_cluster_health" "this" {
+  client_configuration = data.talos_client_configuration.this.client_configuration
+  endpoints            = local.controlplane_ips
+  control_plane_nodes  = local.controlplane_ips
+  #worker_nodes           = local.worker_nodes
+  skip_kubernetes_checks = false
+
+  timeouts = {
+    read = "10m"
+  }
+}
+
 resource "local_file" "kubeconfig" {
   content  = talos_cluster_kubeconfig.this.kubeconfig_raw
   filename = pathexpand("${var.kubernetes_config_path}/${var.name}")

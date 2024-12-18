@@ -12,11 +12,48 @@ resource "talos_machine_configuration_apply" "hosts" {
   endpoint                    = each.value.lan[0].ip
 
   config_patches = [
-    templatefile("${path.module}/resources/templates/install-disk-and-hostname.yaml.tmpl", {
-      hostname     = each.key
+    each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/scheduling_cp.yaml.tmpl", {
+      allow_scheduling_on_controlplane = var.allow_scheduling_on_controlplane
+    }) : null,
+
+    templatefile("${path.module}/resources/templates/hostname.yaml.tmpl", {
+      hostname = each.key
+    }),
+
+    templatefile("${path.module}/resources/templates/install_disk.yaml.tmpl", {
       install_disk = each.value.disk.install
     }),
-    each.value.cluster.role == "controlplane" ? file("${path.module}/resources/files/cp-scheduling.yaml") : null
+
+    templatefile("${path.module}/resources/templates/nameservers.yaml.tmpl", {
+      nameservers = var.nameservers
+    }),
+
+    templatefile("${path.module}/resources/templates/ntp_servers.yaml.tmpl", {
+      ntp_servers = var.ntp_servers
+    }),
+
+    templatefile("${path.module}/resources/templates/host_dns.yaml.tmpl", {
+      host_dns_enabled         = var.host_dns.enabled
+      resolve_member_names     = var.host_dns.resolveMemberNames
+      forward_kube_dns_to_host = var.host_dns.forwardKubeDNSToHost
+    }),
+
+    #templatefile("${path.module}/resources/templates/lan.yaml.tmpl", {
+    #
+    #}),
+    /*
+    var.ingress_firewall_enabled == true && each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/firewall_cp.yaml.tmpl", {
+      cni_vxlan_port    = var.cni_vxlan_port
+      cluster_subnet    = var.cluster_subnet
+      control_plane_ips = local.controlplane_ips
+    }) : null,
+
+    var.ingress_firewall_enabled == true && each.value.cluster.role == "worker" ? templatefile("${path.module}/resources/templates/firewall_worker.yaml.tmpl", {
+      cni_vxlan_port = var.cni_vxlan_port
+      cluster_subnet = var.cluster_subnet
+    }) : null,
+*/
+    file("${path.module}/resources/files/longhorn.yaml"),
   ]
 }
 
