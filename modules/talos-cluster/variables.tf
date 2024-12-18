@@ -34,6 +34,56 @@ variable "kubernetes_config_path" {
   default     = "~/.kube"
 }
 
+variable "nameservers" {
+  description = "A list of nameservers to use for the Talos cluster."
+  type        = list(string)
+  default     = ["1.1.1.1", "1.0.0.1"]
+}
+
+variable "ntp_servers" {
+  description = "A list of NTP servers to use for the Talos cluster."
+  type        = list(string)
+  default     = ["0.pool.ntp.org", "1.pool.ntp.org"]
+}
+/*
+variable "ingress_firewall_enabled" {
+  description = "Whether to enable the ingress firewall for the Talos cluster."
+  type        = bool
+  default     = true
+}
+
+variable "cluster_subnet" {
+  description = "The subnet to use for the Talos cluster."
+  type        = string
+  default     = "192.168.10.0/24"
+}
+
+variable "cni_vxlan_port" {
+  description = "The port to use for the CNI VXLAN."
+  type        = string
+  default     = "8472" # Cilium default
+}
+*/
+variable "allow_scheduling_on_controlplane" {
+  description = "Whether to allow scheduling on the controlplane."
+  type        = bool
+  default     = true
+}
+
+variable "host_dns" {
+  description = "The DNS server to use for the Talos cluster."
+  type = object({
+    enabled              = bool
+    resolveMemberNames   = bool
+    forwardKubeDNSToHost = bool
+  })
+  default = {
+    enabled              = true
+    resolveMemberNames   = true
+    forwardKubeDNSToHost = true
+  }
+}
+
 variable "hosts" {
   description = "A map of current hosts from which to build the Talos cluster."
   type = map(object({
