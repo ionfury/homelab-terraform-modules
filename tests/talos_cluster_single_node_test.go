@@ -61,17 +61,16 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 	talos_version := "v1.8.4"
 	talos_config_path := "~/.talos"
 	kubernetes_config_path := "~/.kube"
-	nameservers := []string{"1.1.1.1", "8.8.8.8"}
+	nameservers := []string{"192.168.10.1"}
 	ntp_servers := []string{"0.pool.ntp.org", "1.pool.ntp.org"}
-	ingress_firewall_enabled := true
-	cluster_subnet := "192.168.10.0/24"
-	cni_vxlan_port := "8473"
+	cluster_vip := "192.168.10.5"
+	//ingress_firewall_enabled := true
+	//cluster_subnet := "192.168.10.0/24"
+	//cni_vxlan_port := "8473"
 	allow_scheduling_on_controlplane := true
-	host_dns := map[string]interface{}{
-		"enabled":              true,
-		"resolveMemberNames":   true,
-		"forwardKubeDNSToHost": true,
-	}
+	host_dns_enabled := true
+	host_dns_resolveMemberNames := true
+	host_dns_forwardKubeDNSToHost := true
 	// Sourced from: https://github.com/ionfury/homelab-infrastructure/blob/7847cc352ab553b5bb980c828264bbeba52c5e3a/terraform/inventory.hcl#L15
 	// TODO: Reference this directly.
 	hosts := map[string]interface{}{
@@ -83,10 +82,18 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 			"disk": map[string]interface{}{
 				"install": "/dev/sda",
 			},
-			"lan": []map[string]interface{}{
+			"interfaces": []map[string]interface{}{
 				{
-					"ip":  "192.168.10.246",
-					"mac": "ac:1f:6b:2d:c0:22",
+					"hardwareAddr":     "ac:1f:6b:2d:c0:22",
+					"addresses":        []string{"192.168.10.246"},
+					"dhcp_routeMetric": 50,
+					"vlans": []map[string]interface{}{
+						{
+							"vlanId":           20,
+							"addresses":        []string{"192.168.20.20"},
+							"dhcp_routeMetric": 100,
+						},
+					},
 				},
 			},
 			"ipmi": map[string]interface{}{
@@ -99,18 +106,21 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 	return &terraform.Options{
 		TerraformDir: "../modules/talos-cluster",
 		Vars: map[string]interface{}{
-			"name":                             clusterName,
-			"endpoint":                         endpoint,
-			"kubernetes_version":               kubernetes_version,
-			"talos_version":                    talos_version,
-			"talos_config_path":                talos_config_path,
-			"kubernetes_config_path":           kubernetes_config_path,
-			"nameservers":                      nameservers,
-			"ntp_servers":                      ntp_servers,
-			"host_dns":                         host_dns,
-			"ingress_firewall_enabled":         ingress_firewall_enabled,
-			"cluster_subnet":                   cluster_subnet,
-			"cni_vxlan_port":                   cni_vxlan_port,
+			"name":                          clusterName,
+			"endpoint":                      endpoint,
+			"kubernetes_version":            kubernetes_version,
+			"talos_version":                 talos_version,
+			"talos_config_path":             talos_config_path,
+			"kubernetes_config_path":        kubernetes_config_path,
+			"nameservers":                   nameservers,
+			"ntp_servers":                   ntp_servers,
+			"cluster_vip":                   cluster_vip,
+			"host_dns_enabled":              host_dns_enabled,
+			"host_dns_resolveMemberNames":   host_dns_resolveMemberNames,
+			"host_dns_forwardKubeDNSToHost": host_dns_forwardKubeDNSToHost,
+			//"ingress_firewall_enabled":         ingress_firewall_enabled,
+			//"cluster_subnet":                   cluster_subnet,
+			//"cni_vxlan_port":                   cni_vxlan_port,
 			"allow_scheduling_on_controlplane": allow_scheduling_on_controlplane,
 			"hosts":                            hosts,
 		},
@@ -150,32 +160,38 @@ func validateNodes(t *testing.T, terraformOptions *terraform.Options) {
 		nodeRole := fields[2]
 		nodeIP := fields[5]
 
-		hostConfig, ok := hosts[nodeName]
+		hostConfig, ok := hosts[nodeName].(map[string]interface{})
 		if !ok {
-			t.Fatalf("Node %s not found in the hosts variable", nodeName)
+			t.Fatalf("Error: node46 is not a map[string]interface{}")
+			return
 		}
 
-		hostConfigMap, ok := hostConfig.(map[string]interface{})
-		if !ok {
-			t.Fatalf("host configuration for %s is not a map", nodeName)
+		interfaces, ok := hostConfig["interfaces"].([]map[string]interface{})
+		if !ok || len(interfaces) == 0 {
+			t.Fatalf("Error: interfaces is not a slice of map[string]interface{} or is empty")
+			return
 		}
 
-		lan, ok := hostConfigMap["lan"].([]map[string]interface{})
-		if !ok || len(lan) == 0 {
-			t.Fatalf("lan configuration for %s is not set or is not a list", nodeName)
+		vlans, ok := interfaces[0]["vlans"].([]map[string]interface{})
+		if !ok || len(vlans) == 0 {
+			t.Fatalf("Error: vlans is not a slice of map[string]interface{} or is empty")
+			return
 		}
 
-		ip, ok := lan[0]["ip"].(string)
-		if !ok || ip == "" {
-			t.Fatalf("IP address for %s is not set or is not a string", nodeName)
+		addresses, ok := vlans[0]["addresses"].([]string)
+		if !ok || len(addresses) == 0 {
+			t.Fatalf("Error: addresses is not a slice of strings or is empty")
+			return
 		}
+
+		ip := addresses[0]
 
 		expectedVersion := terraformOptions.Vars["kubernetes_version"].(string)
 		if !strings.HasPrefix(expectedVersion, "v") {
 			expectedVersion = "v" + expectedVersion
 		}
 
-		expectedRole := hostConfigMap["cluster"].(map[string]interface{})["role"].(string)
+		expectedRole := hostConfig["cluster"].(map[string]interface{})["role"].(string)
 		if expectedRole == "controlplane" {
 			expectedRole = "control-plane"
 		}

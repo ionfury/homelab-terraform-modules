@@ -45,6 +45,11 @@ variable "ntp_servers" {
   type        = list(string)
   default     = ["0.pool.ntp.org", "1.pool.ntp.org"]
 }
+
+variable "cluster_vip" {
+  description = "The VIP to use for the Talos cluster. Applied to the first interface of control plane hosts."
+  type        = string
+}
 /*
 variable "ingress_firewall_enabled" {
   description = "Whether to enable the ingress firewall for the Talos cluster."
@@ -70,18 +75,22 @@ variable "allow_scheduling_on_controlplane" {
   default     = true
 }
 
-variable "host_dns" {
-  description = "The DNS server to use for the Talos cluster."
-  type = object({
-    enabled              = bool
-    resolveMemberNames   = bool
-    forwardKubeDNSToHost = bool
-  })
-  default = {
-    enabled              = true
-    resolveMemberNames   = true
-    forwardKubeDNSToHost = true
-  }
+variable "host_dns_enabled" {
+  description = "Whether to enable host DNS."
+  type        = bool
+  default     = true
+}
+
+variable "host_dns_resolveMemberNames" {
+  description = "Whether to resolve member names."
+  type        = bool
+  default     = true
+}
+
+variable "host_dns_forwardKubeDNSToHost" {
+  description = "Whether to forward kube DNS to the host."
+  type        = bool
+  default     = true
 }
 
 variable "hosts" {
@@ -94,15 +103,22 @@ variable "hosts" {
     disk = object({
       install = string
     })
-    lan = list(object({
-      ip  = string
-      mac = string
+    interfaces = list(object({
+      hardwareAddr     = string
+      addresses        = list(string)
+      dhcp_routeMetric = number
+      vlans = list(object({
+        vlanId           = number
+        addresses        = list(string)
+        dhcp_routeMetric = number
+      }))
     }))
     ipmi = object({
       ip  = string
       mac = string
     })
   }))
+
   default = {
     node46 = {
       cluster = {
@@ -112,9 +128,15 @@ variable "hosts" {
       disk = {
         install = "/dev/sda"
       }
-      lan = [{
-        ip  = "192.168.10.246"
-        mac = "ac:1f:6b:2d:c0:22"
+      interfaces = [{
+        hardwareAddr     = "ac:1f:6b:2d:c0:22"
+        addresses        = ["192.168.10.246"]
+        dhcp_routeMetric = 100
+        vlans = [{
+          vlanId           = 10
+          addresses        = ["192.168.20.10"]
+          dhcp_routeMetric = 100
+        }]
       }]
       ipmi = {
         ip  = "192.168.10.231"

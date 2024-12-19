@@ -1,6 +1,6 @@
 locals {
   nodes            = [for host_key, host in var.hosts : host_key]
-  controlplane_ips = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"]
+  controlplane_ips = [for host_key, host in var.hosts : host.interfaces[0].addresses[0] if host.cluster.role == "controlplane"]
 }
 
 resource "talos_machine_secrets" "this" {

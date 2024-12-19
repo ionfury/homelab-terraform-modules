@@ -1,6 +1,6 @@
 locals {
   bootstrap_node     = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
-  bootstrap_endpoint = [for host_key, host in var.hosts : host.lan[0].ip if host.cluster.role == "controlplane"][0]
+  bootstrap_endpoint = [for host_key, host in var.hosts : host.interfaces[0].addresses[0] if host.cluster.role == "controlplane"][0]
 }
 
 resource "talos_machine_configuration_apply" "hosts" {
@@ -9,7 +9,7 @@ resource "talos_machine_configuration_apply" "hosts" {
   client_configuration        = talos_machine_secrets.this.client_configuration
   machine_configuration_input = data.talos_machine_configuration.control_plane.machine_configuration
   node                        = each.key
-  endpoint                    = each.value.lan[0].ip
+  endpoint                    = each.value.interfaces[0].addresses[0]
 
   config_patches = [
     each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/scheduling_cp.yaml.tmpl", {
@@ -33,14 +33,15 @@ resource "talos_machine_configuration_apply" "hosts" {
     }),
 
     templatefile("${path.module}/resources/templates/host_dns.yaml.tmpl", {
-      host_dns_enabled         = var.host_dns.enabled
-      resolve_member_names     = var.host_dns.resolveMemberNames
-      forward_kube_dns_to_host = var.host_dns.forwardKubeDNSToHost
+      host_dns_enabled         = var.host_dns_enabled
+      resolve_member_names     = var.host_dns_resolveMemberNames
+      forward_kube_dns_to_host = var.host_dns_forwardKubeDNSToHost
     }),
 
-    #templatefile("${path.module}/resources/templates/lan.yaml.tmpl", {
-    #
-    #}),
+    templatefile("${path.module}/resources/templates/interfaces.yaml.tmpl", {
+      cluster_vip = var.cluster_vip
+      interfaces  = each.value.interfaces
+    }),
     /*
     var.ingress_firewall_enabled == true && each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/firewall_cp.yaml.tmpl", {
       cni_vxlan_port    = var.cni_vxlan_port

@@ -1,7 +1,7 @@
 machine:
   time:
     servers:
-      %{ for server in ntp_servers ~}
+%{ for server in ntp_servers ~}
       - ${server}
-      %{ endfor ~}
+%{ endfor ~}
  
