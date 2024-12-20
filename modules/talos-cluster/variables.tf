@@ -49,6 +49,7 @@ variable "ntp_servers" {
 variable "cluster_vip" {
   description = "The VIP to use for the Talos cluster. Applied to the first interface of control plane hosts."
   type        = string
+  default     = "192.168.10.5"
 }
 /*
 variable "ingress_firewall_enabled" {

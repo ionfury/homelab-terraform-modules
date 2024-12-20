@@ -1,15 +1,51 @@
 package test
 
 import (
-	"regexp"
-	"strings"
 	"testing"
 
+	"github.com/go-viper/mapstructure/v2"
 	"github.com/gruntwork-io/terratest/modules/random"
 	"github.com/gruntwork-io/terratest/modules/shell"
 	"github.com/gruntwork-io/terratest/modules/terraform"
 	"github.com/stretchr/testify/assert"
+	"github.com/tidwall/gjson"
 )
+
+type VLAN struct {
+	VlanID          int      `mapstructure:"vlanId"`
+	Addresses       []string `mapstructure:"addresses"`
+	DHCPRouteMetric int      `mapstructure:"dhcp_routeMetric"`
+}
+
+type Interface struct {
+	HardwareAddr    string   `mapstructure:"hardwareAddr"`
+	Addresses       []string `mapstructure:"addresses"`
+	DHCPRouteMetric int      `mapstructure:"dhcp_routeMetric"`
+	VLANs           []VLAN   `mapstructure:"vlans"`
+}
+
+type IPMI struct {
+	IP  string `mapstructure:"ip"`
+	MAC string `mapstructure:"mac"`
+}
+
+type Disk struct {
+	Install string `mapstructure:"install"`
+}
+
+type Cluster struct {
+	Member string `mapstructure:"member"`
+	Role   string `mapstructure:"role"`
+}
+
+type Host struct {
+	Cluster    Cluster     `mapstructure:"cluster"`
+	Disk       Disk        `mapstructure:"disk"`
+	Interfaces []Interface `mapstructure:"interfaces"`
+	IPMI       IPMI        `mapstructure:"ipmi"`
+}
+
+type Hosts map[string]Host
 
 func TestTalosClusterSingleNode(t *testing.T) {
 	terraformOptions := createTalosClusterSingleNodeOptions()
@@ -20,24 +56,39 @@ func TestTalosClusterSingleNode(t *testing.T) {
 	terraform.InitAndApply(t, terraformOptions)
 
 	t.Run("group", func(t *testing.T) {
-		t.Run("validateNodes", func(t *testing.T) {
-			validateNodes(t, terraformOptions)
-		})
-		t.Run("confirmClusterWithTalosctl", func(t *testing.T) {
+		t.Run("validateTalosHostDnsConfig", func(t *testing.T) {
 			t.Parallel()
-			confirmClusterWithTalosctl(t, terraformOptions)
+			validateTalosHostDnsConfig(t, terraformOptions)
 		})
-		t.Run("validateKubectlServerVersion", func(t *testing.T) {
+
+		t.Run("validateTalosHostnameConfig", func(t *testing.T) {
 			t.Parallel()
-			validateKubectlServerVersion(t, terraformOptions)
+			validateTalosHostnameConfig(t, terraformOptions)
 		})
-		t.Run("validateClusterDNSResolvers", func(t *testing.T) {
+
+		t.Run("validateTalosInstallDiskConfig", func(t *testing.T) {
 			t.Parallel()
-			validateClusterDNSResolvers(t, terraformOptions)
+			validateTalosInstallDiskConfig(t, terraformOptions)
 		})
-		t.Run("validateClusterNTPServers", func(t *testing.T) {
+
+		t.Run("validateTalosNameserversConfig", func(t *testing.T) {
 			t.Parallel()
-			validateClusterNTPServers(t, terraformOptions)
+			validateTalosNameserversConfig(t, terraformOptions)
+		})
+
+		t.Run("validateTalosNTPServersConfig", func(t *testing.T) {
+			t.Parallel()
+			validateTalosNTPServersConfig(t, terraformOptions)
+		})
+
+		t.Run("validateTalosControlPlaneSchedulingConfig", func(t *testing.T) {
+			t.Parallel()
+			validateTalosControlPlaneSchedulingConfig(t, terraformOptions)
+		})
+
+		t.Run("validateKubernetesVersionConfig", func(t *testing.T) {
+			t.Parallel()
+			validateKubernetesVersionConfig(t, terraformOptions)
 		})
 	})
 }
@@ -120,132 +171,243 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 			"host_dns_forwardKubeDNSToHost": host_dns_forwardKubeDNSToHost,
 			//"ingress_firewall_enabled":         ingress_firewall_enabled,
 			//"cluster_subnet":                   cluster_subnet,
-			//"cni_vxlan_port":                   cni_vxlan_port,
 			"allow_scheduling_on_controlplane": allow_scheduling_on_controlplane,
 			"hosts":                            hosts,
 		},
 	}
 }
 
-func validateNodes(t *testing.T, terraformOptions *terraform.Options) {
-	kubeConfigPath := terraform.Output(t, terraformOptions, "kubernetes_config_file_path")
+func validateTalosHostDnsConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
 
-	kubectlCmd := shell.Command{
-		Command: "kubectl",
-		Args:    []string{"--kubeconfig", kubeConfigPath, "get", "nodes", "-o", "wide"},
+	hostDnsEnabled, ok := terraformOptions.Vars["host_dns_enabled"].(bool)
+	if !ok {
+		t.Fatalf("host_dns_enabled variable is not set or is not a boolean")
 	}
 
-	output, err := shell.RunCommandAndGetOutputE(t, kubectlCmd)
-	assert.NoError(t, err, "Failed to run kubectl command")
+	if hostDnsEnabled {
+		hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+		if !ok {
+			t.Fatalf("hosts variable is not set or is not a map")
+		}
+
+		resolveMemberNames, ok := terraformOptions.Vars["host_dns_resolveMemberNames"].(bool)
+		if !ok {
+			t.Fatalf("host_dns_resolveMemberNames variable is not set or is not a boolean")
+		}
+
+		for hostName := range hosts {
+			talosctlCmd := shell.Command{
+				Command: "talosctl",
+				Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "hostdnsconfig", "-o", "json"},
+			}
+
+			json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+			if err != nil {
+				t.Fatalf("Failed to run talosctl command: %v", err)
+			}
+
+			assert.Equal(t, hostDnsEnabled, gjson.Get(json, "spec.enabled").Bool(), "Host DNS for host %s is not enabled", hostName)
+			assert.Equal(t, resolveMemberNames, gjson.Get(json, "spec.resolveMemberNames").Bool(), "ResolveMemberNames for host %s does not match", hostName)
+		}
+	}
+}
+
+func validateTalosHostnameConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
 
 	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
 	if !ok {
 		t.Fatalf("hosts variable is not set or is not a map")
 	}
 
-	lines := strings.Split(output, "\n")
-	for _, line := range lines {
-		if strings.TrimSpace(line) == "" || strings.HasPrefix(line, "NAME") {
-			continue
+	for hostName := range hosts {
+		talosctlCmd := shell.Command{
+			Command: "talosctl",
+			Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "hostname", "-o", "json"},
 		}
 
-		fields := strings.Fields(line)
-		if len(fields) < 5 {
-			t.Fatalf("Unexpected format in kubectl output: %s", line)
+		json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+		if err != nil {
+			t.Fatalf("Failed to run talosctl command: %v", err)
 		}
 
-		nodeName := fields[0]
-		nodeStatus := fields[1]
-		nodeVersion := fields[4]
-		nodeRole := fields[2]
-		nodeIP := fields[5]
-
-		hostConfig, ok := hosts[nodeName].(map[string]interface{})
-		if !ok {
-			t.Fatalf("Error: node46 is not a map[string]interface{}")
-			return
-		}
-
-		interfaces, ok := hostConfig["interfaces"].([]map[string]interface{})
-		if !ok || len(interfaces) == 0 {
-			t.Fatalf("Error: interfaces is not a slice of map[string]interface{} or is empty")
-			return
-		}
-
-		vlans, ok := interfaces[0]["vlans"].([]map[string]interface{})
-		if !ok || len(vlans) == 0 {
-			t.Fatalf("Error: vlans is not a slice of map[string]interface{} or is empty")
-			return
-		}
-
-		addresses, ok := vlans[0]["addresses"].([]string)
-		if !ok || len(addresses) == 0 {
-			t.Fatalf("Error: addresses is not a slice of strings or is empty")
-			return
-		}
-
-		ip := addresses[0]
-
-		expectedVersion := terraformOptions.Vars["kubernetes_version"].(string)
-		if !strings.HasPrefix(expectedVersion, "v") {
-			expectedVersion = "v" + expectedVersion
-		}
-
-		expectedRole := hostConfig["cluster"].(map[string]interface{})["role"].(string)
-		if expectedRole == "controlplane" {
-			expectedRole = "control-plane"
-		}
-
-		// Validate the node details
-		assert.Equal(t, ip, nodeIP, "IP address for node %s does not match", nodeName)
-		assert.Equal(t, expectedVersion, nodeVersion, "Node version for %s does not match", nodeName)
-		assert.Equal(t, "Ready", nodeStatus, "Node status for %s is not Ready", nodeName)
-		assert.Equal(t, expectedRole, nodeRole, "Node role for %s does not match", nodeName)
+		assert.Equal(t, hostName, gjson.Get(json, "spec.hostname").String(), "Hostname for host %s does not match", hostName)
 	}
 }
 
-func confirmClusterWithTalosctl(t *testing.T, terraformOptions *terraform.Options) {
+func validateTalosInstallDiskConfig(t *testing.T, terraformOptions *terraform.Options) {
 	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
-	re := regexp.MustCompile(`Server:\s+NODE:\s+\w+\s+Tag:\s+(\S+)`)
-
-	talosctlCmd := shell.Command{
-		Command: "talosctl",
-		Args:    []string{"--talosconfig", talosConfigFilePath, "version"},
+	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("hosts variable is not set or is not a map")
 	}
 
-	output, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
-	matches := re.FindStringSubmatch(output)
-	if len(matches) < 2 {
-		t.Fatalf("Server.Tag not found in the talosctl output")
+	var decodedHosts Hosts
+	err := mapstructure.Decode(hosts, &decodedHosts)
+	if err != nil {
+		t.Fatalf("Failed to decode hosts: %v", err)
 	}
 
-	// serverTag := matches[1]
-	// https://github.com/siderolabs/terraform-provider-talos/issues/196#issuecomment-2329652298
-	//assert.Equal(t, terraformOptions.Vars["talos_version"].(string), serverTag, "Talos")
-	assert.NoError(t, err, "Failed to run talosctl command")
-	assert.Contains(t, output, "Server:", "Talos cluster is not up and functional")
+	for hostName, hostConfig := range decodedHosts {
+		talosctlCmd := shell.Command{
+			Command: "talosctl",
+			Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "systemdisk", "-o", "json"},
+		}
+
+		json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+		if err != nil {
+			t.Fatalf("Failed to run talosctl command: %v", err)
+		}
+
+		assert.Equal(t, hostConfig.Disk.Install, gjson.Get(json, "spec.devPath").String(), "Install disk for host %s does not match", hostName)
+	}
 }
 
-func validateKubectlServerVersion(t *testing.T, terraformOptions *terraform.Options) {
+func validateTalosInterfaceHardwareAddrConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
+	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("hosts variable is not set or is not a map")
+	}
+
+	var decodedHosts Hosts
+	err := mapstructure.Decode(hosts, &decodedHosts)
+	if err != nil {
+		t.Fatalf("Failed to decode hosts: %v", err)
+	}
+
+	for hostName, hostConfig := range decodedHosts {
+		for _, iface := range hostConfig.Interfaces {
+			talosctlCmd := shell.Command{
+				Command: "talosctl",
+				Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "link", "-o", "json"},
+			}
+
+			json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+			if err != nil {
+				t.Fatalf("Failed to run talosctl command: %v", err)
+			}
+
+			assert.Equal(t, iface.HardwareAddr, gjson.Get(json, "spec.hardwareAddr").String(), "Hardware address for host %s does not match", hostName)
+		}
+	}
+}
+
+func validateTalosNodeIpConfig(t *testing.T, terraformOptions *terraform.Options) {}
+
+func validateTalosLinkConfig(t *testing.T, terraformOptions *terraform.Options) {}
+
+func validateTalosRouteConfig(t *testing.T, terraformOptions *terraform.Options) {}
+
+func validateTalosNameserversConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
+	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("hosts variable is not set or is not a map")
+	}
+
+	expectedNameservers, ok := terraformOptions.Vars["nameservers"].([]string)
+	if !ok {
+		t.Fatalf("nameservers variable is not set or is not a list of strings")
+	}
+
+	for hostName := range hosts {
+		talosctlCmd := shell.Command{
+			Command: "talosctl",
+			Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "resolvers", "-o", "json"},
+		}
+
+		json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+		if err != nil {
+			t.Fatalf("Failed to run talosctl command: %v", err)
+		}
+
+		nameservers := gjson.Get(json, "spec.dnsServers").Array()
+		var actualNameservers []string
+		for _, nameserver := range nameservers {
+			actualNameservers = append(actualNameservers, nameserver.String())
+		}
+
+		assert.Equal(t, expectedNameservers, actualNameservers, "Configured nameservers for host %s do not match", hostName)
+	}
+}
+
+func validateTalosNTPServersConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
+	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("hosts variable is not set or is not a map")
+	}
+
+	expectedNTPServers, ok := terraformOptions.Vars["ntp_servers"].([]string)
+	if !ok {
+		t.Fatalf("ntp_servers variable is not set or is not a list of strings")
+	}
+
+	for hostName := range hosts {
+		talosctlCmd := shell.Command{
+			Command: "talosctl",
+			Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "timeservers", "-o", "json"},
+		}
+
+		json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+		if err != nil {
+			t.Fatalf("Failed to run talosctl command: %v", err)
+		}
+
+		timeservers := gjson.Get(json, "spec.timeServers").Array()
+		var actualNTPServers []string
+		for _, timeserver := range timeservers {
+			actualNTPServers = append(actualNTPServers, timeserver.String())
+		}
+
+		assert.Equal(t, expectedNTPServers, actualNTPServers, "Configured NTP servers for host %s do not match", hostName)
+	}
+}
+
+func validateTalosControlPlaneSchedulingConfig(t *testing.T, terraformOptions *terraform.Options) {
+	talosConfigFilePath := terraform.Output(t, terraformOptions, "talos_config_file_path")
+	hosts, ok := terraformOptions.Vars["hosts"].(map[string]interface{})
+	if !ok {
+		t.Fatalf("hosts variable is not set or is not a map")
+	}
+
+	allowSchedulingOnControlplane, ok := terraformOptions.Vars["allow_scheduling_on_controlplane"].(bool)
+	if !ok {
+		t.Fatalf("allow_scheduling_on_controlplane variable is not set or is not a boolean")
+	}
+
+	for hostName := range hosts {
+		talosctlCmd := shell.Command{
+			Command: "talosctl",
+			Args:    []string{"--talosconfig", talosConfigFilePath, "-n", hostName, "get", "schedulerconfig", "-o", "json"},
+		}
+
+		json, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
+		if err != nil {
+			t.Fatalf("Failed to run talosctl command: %v", err)
+		}
+
+		assert.Equal(t, allowSchedulingOnControlplane, gjson.Get(json, "spec.enabled").Bool(), "AllowScheduling for host %s does not match", hostName)
+	}
+}
+
+func validateKubernetesVersionConfig(t *testing.T, terraformOptions *terraform.Options) {
 	kubeConfigPath := terraform.Output(t, terraformOptions, "kubernetes_config_file_path")
-	re := regexp.MustCompile(`Server Version:\s+v(\d+\.\d+\.\d+)`)
 
 	kubectlCmd := shell.Command{
 		Command: "kubectl",
-		Args:    []string{"--kubeconfig", kubeConfigPath, "version"},
+		Args:    []string{"--kubeconfig", kubeConfigPath, "version", "-o", "json"},
 	}
 
 	output, err := shell.RunCommandAndGetOutputE(t, kubectlCmd)
-	matches := re.FindStringSubmatch(output)
-	if len(matches) < 2 {
-		t.Fatalf("Server Version not found in the kubectl output")
+	if err != nil {
+		t.Fatalf("Failed to run kubectl command: %v", err)
 	}
 
-	serverVersion := matches[1]
-
-	assert.Equal(t, terraformOptions.Vars["kubernetes_version"].(string), serverVersion, "Cluster Server Version does not match the provided kubernetes version.")
-	assert.NoError(t, err, "Failed to run kubectl command")
-	assert.Contains(t, output, "Server Version", "Kubernetes cluster is not up and functional")
+	expectedVersion := "v" + terraformOptions.Vars["kubernetes_version"].(string)
+	assert.Equal(t, expectedVersion, gjson.Get(output, "serverVersion.gitVersion").String(), "Kubernetes version does not match the provided version")
 }
 
 func resetClusterToMaintenanceMode(t *testing.T, terraformOptions *terraform.Options) {
@@ -268,96 +430,4 @@ func resetClusterToMaintenanceMode(t *testing.T, terraformOptions *terraform.Opt
 			t.Fatalf("Failed to reset the cluster node %s into maintenance mode", hostName)
 		}
 	}
-}
-
-func validateClusterDNSResolvers(t *testing.T, terraformOptions *terraform.Options) {
-	talosConfigPath := terraform.Output(t, terraformOptions, "talos_config_file_path")
-
-	// Retrieve the expected DNS resolvers from the terraform options
-	expectedNameservers, ok := terraformOptions.Vars["nameservers"].([]string)
-	if !ok {
-		t.Fatalf("nameservers variable is not set or is not a list of strings")
-	}
-
-	// Convert the expected DNS resolvers to a set for easier comparison
-	expectedNameserversSet := make(map[string]struct{})
-	for _, server := range expectedNameservers {
-		expectedNameserversSet[server] = struct{}{}
-	}
-
-	// Run talosctl get resolvers command
-	talosctlCmd := shell.Command{
-		Command: "talosctl",
-		Args:    []string{"--talosconfig", talosConfigPath, "get", "resolvers"},
-	}
-
-	output, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
-	assert.NoError(t, err, "Failed to run talosctl command")
-
-	// Parse the output to extract the resolvers
-	re := regexp.MustCompile(`\s+\[([^\]]+)\]`)
-	matches := re.FindStringSubmatch(output)
-	if len(matches) < 2 {
-		t.Fatalf("Resolvers not found in the talosctl output")
-	}
-
-	// Extract the resolvers from the output
-	resolversStr := matches[1]
-	resolvers := strings.Split(resolversStr, ",")
-
-	// Convert the resolvers to a set for comparison
-	resolversSet := make(map[string]struct{})
-	for _, server := range resolvers {
-		server = strings.TrimSpace(strings.Trim(server, `"`)) // Remove quotes and trim spaces
-		resolversSet[server] = struct{}{}
-	}
-
-	// Compare the expected DNS resolvers with the actual resolvers
-	assert.Equal(t, expectedNameserversSet, resolversSet, "Configured DNS resolvers do not match the expected nameservers")
-}
-
-func validateClusterNTPServers(t *testing.T, terraformOptions *terraform.Options) {
-	talosConfigPath := terraform.Output(t, terraformOptions, "talos_config_file_path")
-
-	// Retrieve the expected NTP servers from the terraform options
-	expectedNTPServers, ok := terraformOptions.Vars["ntp_servers"].([]string)
-	if !ok {
-		t.Fatalf("ntp_servers variable is not set or is not a list of strings")
-	}
-
-	// Convert the expected NTP servers to a set for easier comparison
-	expectedNTPServersSet := make(map[string]struct{})
-	for _, server := range expectedNTPServers {
-		expectedNTPServersSet[server] = struct{}{}
-	}
-
-	// Run talosctl get timeservers command
-	talosctlCmd := shell.Command{
-		Command: "talosctl",
-		Args:    []string{"--talosconfig", talosConfigPath, "get", "timeservers"},
-	}
-
-	output, err := shell.RunCommandAndGetOutputE(t, talosctlCmd)
-	assert.NoError(t, err, "Failed to run talosctl command")
-
-	// Parse the output to extract the timeservers
-	re := regexp.MustCompile(`.*\[([^\]]+)\]`)
-	matches := re.FindStringSubmatch(output)
-	if len(matches) < 2 {
-		t.Fatalf("Timeservers not found in the talosctl output")
-	}
-
-	// Extract the timeservers from the output
-	timeserversStr := matches[1]
-	timeservers := strings.Split(timeserversStr, ",")
-
-	// Convert the timeservers to a set for comparison
-	timeserversSet := make(map[string]struct{})
-	for _, server := range timeservers {
-		server = strings.TrimSpace(strings.Trim(server, `"`)) // Remove quotes and trim spaces
-		timeserversSet[server] = struct{}{}
-	}
-
-	// Compare the expected NTP servers with the actual timeservers
-	assert.Equal(t, expectedNTPServersSet, timeserversSet, "Configured timeservers do not match the expected NTP servers")
 }

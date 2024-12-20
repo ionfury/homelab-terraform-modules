@@ -4,6 +4,7 @@ machine:
 %{ for interface in interfaces ~}
       - deviceSelector:
           hardwareAddr: ${interface.hardwareAddr}
+          physical: true
         mtu: 1500
         vip:
           ip: ${cluster_vip}
