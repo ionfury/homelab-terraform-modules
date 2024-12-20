@@ -101,8 +101,8 @@ variable "hosts" {
       member = string
       role   = string
     })
-    disk = object({
-      install = string
+    install = object({
+      diskSelector = list(string) # https://www.talos.dev/v1.9/reference/configuration/v1alpha1/config/#Config.machine.install.diskSelector
     })
     interfaces = list(object({
       hardwareAddr     = string
@@ -126,8 +126,8 @@ variable "hosts" {
         member = "cluster"
         role   = "controlplane"
       }
-      disk = {
-        install = "/dev/sda"
+      install = {
+        diskSelector = ["type: 'ssd'"]
       }
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:c0:22"

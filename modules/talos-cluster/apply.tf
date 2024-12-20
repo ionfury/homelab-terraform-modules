@@ -12,33 +12,33 @@ resource "talos_machine_configuration_apply" "hosts" {
   endpoint                    = each.value.interfaces[0].addresses[0]
 
   config_patches = [
-    each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/scheduling_cp.yaml.tmpl", {
+    each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/cluster_allowSchedulingOnControlPlanes.yaml.tmpl", {
       allow_scheduling_on_controlplane = var.allow_scheduling_on_controlplane
     }) : null,
 
-    templatefile("${path.module}/resources/templates/hostname.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/machine_network_hostname.yaml.tmpl", {
       hostname = each.key
     }),
 
-    templatefile("${path.module}/resources/templates/install_disk.yaml.tmpl", {
-      install_disk = each.value.disk.install
+    templatefile("${path.module}/resources/templates/machine_install.yaml.tmpl", {
+      disk_selectors = each.value.install.diskSelector
     }),
 
-    templatefile("${path.module}/resources/templates/nameservers.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/machine_network_namerservers.yaml.tmpl", {
       nameservers = var.nameservers
     }),
 
-    templatefile("${path.module}/resources/templates/ntp_servers.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/machine_time_servers.yaml.tmpl", {
       ntp_servers = var.ntp_servers
     }),
 
-    templatefile("${path.module}/resources/templates/host_dns.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/machine_features_hostDNS.yaml.tmpl", {
       host_dns_enabled         = var.host_dns_enabled
       resolve_member_names     = var.host_dns_resolveMemberNames
       forward_kube_dns_to_host = var.host_dns_forwardKubeDNSToHost
     }),
 
-    templatefile("${path.module}/resources/templates/interfaces.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/machine_network_interfaces.yaml.tmpl", {
       cluster_vip = var.cluster_vip
       interfaces  = each.value.interfaces
     }),
