@@ -7,8 +7,8 @@ import (
 	"github.com/gruntwork-io/terratest/modules/terraform"
 )
 
-func TestTalosClusterSingleNode(t *testing.T) {
-	terraformOptions := createTalosClusterSingleNodeOptions()
+func TestTalosClusterHACP(t *testing.T) {
+	terraformOptions := createTalosClusterHACPOptions()
 	defer func() {
 		resetClusterToMaintenanceMode(t, terraformOptions)
 		destroyTerraformState(t, terraformOptions)
@@ -53,8 +53,9 @@ func TestTalosClusterSingleNode(t *testing.T) {
 	})
 }
 
-func createTalosClusterSingleNodeOptions() *terraform.Options {
-	clusterName := "talos-cluster-single-node-" + random.UniqueId()
+func createTalosClusterHACPOptions() *terraform.Options {
+	clusterName := "talos-cluster-ha-cp-" + random.UniqueId()
+
 	endpoint := "https://192.168.10.246:6443"
 	kubernetes_version := "1.30.1"
 	talos_version := "v1.8.4"
@@ -67,9 +68,61 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 	host_dns_enabled := true
 	host_dns_resolveMemberNames := true
 	host_dns_forwardKubeDNSToHost := true
-	// Sourced from: https://github.com/ionfury/homelab-infrastructure/blob/7847cc352ab553b5bb980c828264bbeba52c5e3a/terraform/inventory.hcl#L15
-	// TODO: Reference this directly.
 	hosts := map[string]interface{}{
+		"node44": map[string]interface{}{
+			"cluster": map[string]interface{}{
+				"member": clusterName,
+				"role":   "controlplane",
+			},
+			"disk": map[string]interface{}{
+				"install": "/dev/sda",
+			},
+			"interfaces": []map[string]interface{}{
+				{
+					"hardwareAddr":     "ac:1f:6b:2d:ba:1e",
+					"addresses":        []string{"192.168.10.218"},
+					"dhcp_routeMetric": 50,
+					"vlans": []map[string]interface{}{
+						{
+							"vlanId":           20,
+							"addresses":        []string{"192.168.20.20"},
+							"dhcp_routeMetric": 100,
+						},
+					},
+				},
+			},
+			"ipmi": map[string]interface{}{
+				"ip":  "192.168.10.176",
+				"mac": "ac:1f:6b:68:2b:aa",
+			},
+		},
+		"node45": map[string]interface{}{
+			"cluster": map[string]interface{}{
+				"member": clusterName,
+				"role":   "controlplane",
+			},
+			"disk": map[string]interface{}{
+				"install": "/dev/sda",
+			},
+			"interfaces": []map[string]interface{}{
+				{
+					"hardwareAddr":     "ac:1f:6b:2d:bf:ce",
+					"addresses":        []string{"192.168.10.222"},
+					"dhcp_routeMetric": 50,
+					"vlans": []map[string]interface{}{
+						{
+							"vlanId":           20,
+							"addresses":        []string{"192.168.20.21"},
+							"dhcp_routeMetric": 100,
+						},
+					},
+				},
+			},
+			"ipmi": map[string]interface{}{
+				"ip":  "192.168.10.141",
+				"mac": "ac:1f:6b:68:2a:4b",
+			},
+		},
 		"node46": map[string]interface{}{
 			"cluster": map[string]interface{}{
 				"member": clusterName,
