@@ -1,0 +1,6 @@
+machine:
+  install:
+    diskSelector:
+%{ for selector in disk_selectors ~}
+      ${selector}
+%{ endfor ~}
