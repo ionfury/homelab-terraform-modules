@@ -312,7 +312,9 @@ func resetClusterToMaintenanceMode(t *testing.T, terraformOptions *terraform.Opt
 	wg.Wait()
 }
 
-func validateTalosNodeIpConfig(t *testing.T, terraformOptions *terraform.Options) {}
+func validateTalosNodeIpConfig(t *testing.T, terraformOptions *terraform.Options) {
+
+}
 
 func validateTalosLinkConfig(t *testing.T, terraformOptions *terraform.Options) {}
 

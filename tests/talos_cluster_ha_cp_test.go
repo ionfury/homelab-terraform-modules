@@ -9,10 +9,10 @@ import (
 
 func TestTalosClusterHACP(t *testing.T) {
 	terraformOptions := createTalosClusterHACPOptions()
-	defer func() {
+	/*defer func() {
 		resetClusterToMaintenanceMode(t, terraformOptions)
 		destroyTerraformState(t, terraformOptions)
-	}()
+	}()*/
 	terraform.InitAndApply(t, terraformOptions)
 
 	t.Run("group", func(t *testing.T) {
@@ -56,12 +56,12 @@ func TestTalosClusterHACP(t *testing.T) {
 func createTalosClusterHACPOptions() *terraform.Options {
 	clusterName := "talos-cluster-ha-cp-" + random.UniqueId()
 
-	endpoint := "https://192.168.10.246:6443"
+	endpoint := "https://test.citadel.tomnowak.work:6443"
 	kubernetes_version := "1.30.1"
 	talos_version := "v1.8.4"
 	talos_config_path := "~/.talos"
 	kubernetes_config_path := "~/.kube"
-	nameservers := []string{"8.8.8.8", "1.1.1.1"}
+	nameservers := []string{"192.168.1.1"}
 	ntp_servers := []string{"0.pool.ntp.org", "1.pool.ntp.org"}
 	cluster_vip := "192.168.10.5"
 	allow_scheduling_on_controlplane := true
