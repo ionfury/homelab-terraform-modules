@@ -22,6 +22,12 @@ variable "talos_version" {
   default     = "v1.8.3"
 }
 
+variable "cilium_version" {
+  description = "The version of Cilium to use."
+  type        = string
+  default     = "1.16.5"
+}
+
 variable "talos_config_path" {
   description = "The path to the Talos configuration file."
   type        = string
@@ -51,25 +57,25 @@ variable "cluster_vip" {
   type        = string
   default     = "192.168.10.5"
 }
-/*
-variable "ingress_firewall_enabled" {
-  description = "Whether to enable the ingress firewall for the Talos cluster."
-  type        = bool
-  default     = true
-}
 
 variable "cluster_subnet" {
-  description = "The subnet to use for the Talos cluster."
+  description = "The subnet to use for the Talos cluster nodes."
   type        = string
   default     = "192.168.10.0/24"
 }
 
-variable "cni_vxlan_port" {
-  description = "The port to use for the CNI VXLAN."
+variable "pod_subnet" {
+  description = "The pod subnet to use for the Talos cluster."
   type        = string
-  default     = "8472" # Cilium default
+  default     = "172.16.0.0/16"
 }
-*/
+
+variable "service_subnet" {
+  description = "The pod subnet to use for the Talos cluster."
+  type        = string
+  default     = "172.17.0.0/16"
+}
+
 variable "allow_scheduling_on_controlplane" {
   description = "Whether to allow scheduling on the controlplane."
   type        = bool

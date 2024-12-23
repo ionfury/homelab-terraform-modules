@@ -1,6 +1,7 @@
 package test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/gruntwork-io/terratest/modules/random"
@@ -54,7 +55,7 @@ func TestTalosClusterSingleNode(t *testing.T) {
 }
 
 func createTalosClusterSingleNodeOptions() *terraform.Options {
-	clusterName := "talos-cluster-single-node-" + random.UniqueId()
+	clusterName := strings.ToLower("talos-cluster-single-node-" + random.UniqueId())
 	endpoint := "https://192.168.10.246:6443"
 	kubernetes_version := "1.30.1"
 	talos_version := "v1.8.4"

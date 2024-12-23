@@ -42,18 +42,20 @@ resource "talos_machine_configuration_apply" "hosts" {
       cluster_vip = var.cluster_vip
       interfaces  = each.value.interfaces
     }),
-    /*
-    var.ingress_firewall_enabled == true && each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/firewall_cp.yaml.tmpl", {
-      cni_vxlan_port    = var.cni_vxlan_port
-      cluster_subnet    = var.cluster_subnet
-      control_plane_ips = local.controlplane_ips
-    }) : null,
 
-    var.ingress_firewall_enabled == true && each.value.cluster.role == "worker" ? templatefile("${path.module}/resources/templates/firewall_worker.yaml.tmpl", {
-      cni_vxlan_port = var.cni_vxlan_port
+    templatefile("${path.module}/resources/templates/cluster_network_cni.yaml.tmpl", {
+      pod_subnet     = var.pod_subnet
+      service_subnet = var.service_subnet
+    }),
+
+    templatefile("${path.module}/resources/templates/machine_kubelet_nodeip_validSubnets.yaml.tmpl", {
       cluster_subnet = var.cluster_subnet
-    }) : null,
-*/
+    }),
+
+    templatefile("${path.module}/resources/templates/cluster_inlineManifests.yaml.tmpl", {
+      manifests = data.helm_template.cilium.manifests
+    }),
+
     file("${path.module}/resources/files/longhorn.yaml"),
   ]
 }
