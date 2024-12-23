@@ -4,6 +4,7 @@
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.6 |
+| <a name="requirement_helm"></a> [helm](#requirement\_helm) | 2.17.0 |
 | <a name="requirement_local"></a> [local](#requirement\_local) | 2.1.0 |
 | <a name="requirement_talos"></a> [talos](#requirement\_talos) | 0.7.0-alpha.0 |
 
@@ -11,6 +12,7 @@
 
 | Name | Version |
 |------|---------|
+| <a name="provider_helm"></a> [helm](#provider\_helm) | 2.17.0 |
 | <a name="provider_local"></a> [local](#provider\_local) | 2.1.0 |
 | <a name="provider_talos"></a> [talos](#provider\_talos) | 0.7.0-alpha.0 |
 
@@ -28,6 +30,7 @@ No modules.
 | [talos_machine_bootstrap.this](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/resources/machine_bootstrap) | resource |
 | [talos_machine_configuration_apply.hosts](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/resources/machine_configuration_apply) | resource |
 | [talos_machine_secrets.this](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/resources/machine_secrets) | resource |
+| [helm_template.cilium](https://registry.terraform.io/providers/hashicorp/helm/2.17.0/docs/data-sources/template) | data source |
 | [talos_client_configuration.this](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/data-sources/client_configuration) | data source |
 | [talos_cluster_health.this](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/data-sources/cluster_health) | data source |
 | [talos_machine_configuration.control_plane](https://registry.terraform.io/providers/siderolabs/talos/0.7.0-alpha.0/docs/data-sources/machine_configuration) | data source |
@@ -37,6 +40,7 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_allow_scheduling_on_controlplane"></a> [allow\_scheduling\_on\_controlplane](#input\_allow\_scheduling\_on\_controlplane) | Whether to allow scheduling on the controlplane. | `bool` | `true` | no |
+| <a name="input_cilium_version"></a> [cilium\_version](#input\_cilium\_version) | The version of Cilium to use. | `string` | `"1.16.5"` | no |
 | <a name="input_cluster_vip"></a> [cluster\_vip](#input\_cluster\_vip) | The VIP to use for the Talos cluster. Applied to the first interface of control plane hosts. | `string` | `"192.168.10.5"` | no |
 | <a name="input_endpoint"></a> [endpoint](#input\_endpoint) | The endpoint for the Talos cluster. | `string` | `"https://192.168.10.246:6443"` | no |
 | <a name="input_host_dns_enabled"></a> [host\_dns\_enabled](#input\_host\_dns\_enabled) | Whether to enable host DNS. | `bool` | `true` | no |

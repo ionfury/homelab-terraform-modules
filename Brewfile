@@ -11,3 +11,6 @@ brew "act"
 brew "go"
 brew "git"
 brew "sshpass"
+
+# CNI
+brew "cilium-cli"
