@@ -18,36 +18,43 @@ tasks:
       - task: docs
 
   lint:
+    internal: true
     desc: Lints the terraform configuration files.
     cmds:
       - tflint --recursive --fix
 
   lint-check:
+    internal: true
     desc: Checks if the terraform configuration files are linted.
     cmds:
       - tflint --recursive
 
   fmt:
+    internal: true
     desc: Formats the terraform configuration files.
     cmds:
       - terraform fmt -recursive
 
   fmt-check:
+    internal: true
     desc: Checks if the terraform configuration files are formatted.
     cmds:
       - terraform fmt -recursive -check
   
   docs-check:
+    internal: true
     desc: Checks if the terraform configuration files are documented.
     cmds:
       - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown --output-file README.md --output-check .' \;
 
   docs:
+    internal: true
     desc: Generates docs for all terraform modules.
     cmds: 
       - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1 -exec sh -c 'cd "{}" && terraform-docs markdown --output-file README.md .' \;
 
   validate:
+    internal: true
     desc: Validates the terraform configuration files.
     cmds:
       - find {{ .MODULES_DIR }} -type d -maxdepth 1 -mindepth 1  -exec sh -c 'cd "{}" && terraform init --backend=false && terraform validate' \;

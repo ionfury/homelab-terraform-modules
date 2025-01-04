@@ -12,10 +12,10 @@ cgroup:
     enabled: false
   hostRoot: /sys/fs/cgroup
 cni:
-  exclusive: false #to run multus
+  exclusive: false # to run multus
 cluster:
-  id: 1
-  name: asdf
+  id: ${cluster_id}
+  name: ${cluster_name}
 kubeProxyReplacement: true
 enableIPv4BIGTCP: true
 endpointRoutes:

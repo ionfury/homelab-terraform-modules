@@ -30,7 +30,13 @@ type IPMI struct {
 }
 
 type Install struct {
-	DiskSelector string `mapstructure:"diskSelector"`
+	DiskSelector    string   `mapstructure:"diskSelector"`
+	ExtraKernelArgs string   `mapstructure:"extraKernelArgs"`
+	Extensions      []string `mapstructure:"extensions"`
+	SecureBoot      bool     `mapstructure:"secureboot"`
+	Wipe            bool     `mapstructure:"wipe"`
+	Architecture    string   `mapstructure:"architecture"`
+	Platform        string   `mapstructure:"platform"`
 }
 
 type Cluster struct {

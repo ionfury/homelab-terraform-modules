@@ -76,7 +76,13 @@ func createTalosClusterHACPOptions() *terraform.Options {
 				"role":   "controlplane",
 			},
 			"install": map[string]interface{}{
-				"diskSelector": []string{"type: 'ssd'"},
+				"diskSelector":    []string{"type: 'ssd'"},
+				"extraKernelArgs": []string{"apparmor=0"},
+				"extensions":      []string{"iscsi-tools", "util-linux-tools"},
+				"secureboot":      false,
+				"wipe":            false,
+				"architecture":    "amd64",
+				"platform":        "metal",
 			},
 			"interfaces": []map[string]interface{}{
 				{
@@ -103,7 +109,13 @@ func createTalosClusterHACPOptions() *terraform.Options {
 				"role":   "controlplane",
 			},
 			"install": map[string]interface{}{
-				"diskSelector": []string{"type: 'ssd'"},
+				"diskSelector":    []string{"type: 'ssd'"},
+				"extraKernelArgs": []string{"apparmor=0"},
+				"extensions":      []string{"iscsi-tools", "util-linux-tools"},
+				"secureboot":      false,
+				"wipe":            false,
+				"architecture":    "amd64",
+				"platform":        "metal",
 			},
 			"interfaces": []map[string]interface{}{
 				{
@@ -130,7 +142,13 @@ func createTalosClusterHACPOptions() *terraform.Options {
 				"role":   "controlplane",
 			},
 			"install": map[string]interface{}{
-				"diskSelector": []string{"type: 'ssd'"},
+				"diskSelector":    []string{"type: 'ssd'"},
+				"extraKernelArgs": []string{"apparmor=0"},
+				"extensions":      []string{"iscsi-tools", "util-linux-tools"},
+				"secureboot":      false,
+				"wipe":            false,
+				"architecture":    "amd64",
+				"platform":        "metal",
 			},
 			"interfaces": []map[string]interface{}{
 				{
