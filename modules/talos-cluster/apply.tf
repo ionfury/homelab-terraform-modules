@@ -21,7 +21,10 @@ resource "talos_machine_configuration_apply" "hosts" {
     }),
 
     templatefile("${path.module}/resources/templates/machine_install.yaml.tmpl", {
-      disk_selectors = each.value.install.diskSelector
+      disk_selectors    = each.value.install.diskSelector
+      extra_kernel_args = each.value.install.extraKernelArgs
+      disk_image        = each.value.install.secureboot ? data.talos_image_factory_urls.host_image_url[each.key].urls.installer_secureboot : data.talos_image_factory_urls.host_image_url[each.key].urls.installer
+      wipe              = each.value.install.wipe
     }),
 
     templatefile("${path.module}/resources/templates/machine_network_namerservers.yaml.tmpl", {
@@ -49,7 +52,7 @@ resource "talos_machine_configuration_apply" "hosts" {
     }),
 
     templatefile("${path.module}/resources/templates/machine_kubelet_nodeip_validSubnets.yaml.tmpl", {
-      cluster_subnet = var.cluster_subnet
+      node_subnet = var.node_subnet
     }),
 
     templatefile("${path.module}/resources/templates/cluster_inlineManifests.yaml.tmpl", {

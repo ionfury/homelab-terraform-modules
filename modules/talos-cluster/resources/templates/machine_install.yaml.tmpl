@@ -4,3 +4,9 @@ machine:
 %{ for selector in disk_selectors ~}
       ${selector}
 %{ endfor ~}
+    extraKernelArgs:
+%{ for arg in extra_kernel_args ~}
+      - ${arg}
+%{ endfor ~}
+    image: ${disk_image}
+    wipe: ${wipe}

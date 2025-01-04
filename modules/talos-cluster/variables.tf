@@ -2,6 +2,18 @@ variable "name" {
   description = "A name to provide for the Talos cluster."
   type        = string
   default     = "cluster"
+
+  validation {
+    condition     = length(var.name) <= 32 && can(regex("^([a-z0-9]+-)*[a-z0-9]+$", var.name))
+    error_message = "The name must contain at most 32 characters, begin and end with a lower case alphanumeric character, and may contain lower case alphanumeric characters and dashes between."
+  }
+}
+
+variable "cluster_id" {
+  description = "An ID to provide for the Talos cluster."
+  type        = number
+  default     = 1
+
 }
 
 variable "endpoint" {
@@ -58,20 +70,20 @@ variable "cluster_vip" {
   default     = "192.168.10.5"
 }
 
-variable "cluster_subnet" {
+variable "node_subnet" {
   description = "The subnet to use for the Talos cluster nodes."
   type        = string
   default     = "192.168.10.0/24"
 }
 
 variable "pod_subnet" {
-  description = "The pod subnet to use for the Talos cluster."
+  description = "The pod subnet to use for pods on the Talos cluster."
   type        = string
   default     = "172.16.0.0/16"
 }
 
 variable "service_subnet" {
-  description = "The pod subnet to use for the Talos cluster."
+  description = "The pod subnet to use for services on the Talos cluster."
   type        = string
   default     = "172.17.0.0/16"
 }
@@ -108,7 +120,14 @@ variable "hosts" {
       role   = string
     })
     install = object({
-      diskSelector = list(string) # https://www.talos.dev/v1.9/reference/configuration/v1alpha1/config/#Config.machine.install.diskSelector
+      diskSelector    = list(string) # https://www.talos.dev/v1.9/reference/configuration/v1alpha1/config/#Config.machine.install.diskSelector
+      extraKernelArgs = optional(list(string), [])
+      extensions      = optional(list(string), [])
+      secureboot      = optional(bool, false)
+      wipe            = optional(bool, false)
+      architecture    = optional(string, "amd64")
+      platform        = optional(string, "metal")
+
     })
     interfaces = list(object({
       hardwareAddr     = string
@@ -133,7 +152,11 @@ variable "hosts" {
         role   = "controlplane"
       }
       install = {
-        diskSelector = ["type: 'ssd'"]
+        diskSelector    = ["type: 'ssd'"]
+        extraKernelArgs = ["apparmor=0"]
+        extensions      = ["iscsi-tools", "util-linux-tools"]
+        secureboot      = false
+        wipe            = false
       }
       interfaces = [{
         hardwareAddr     = "ac:1f:6b:2d:c0:22"
