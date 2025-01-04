@@ -9,7 +9,7 @@
 
     - name: Download HTTPS enabled ipxe
       get_url:
-        url: https://github.com/pojntfx/ipxe-binaries/releases/download/v0.1.0/ipxe.tar.gz
+        url: https://github.com/pojntfx/ipxe-binaries/releases/download/release-main/ipxe.tar.gz
         dest: /tmp/ipxe.tar.gz
 
     - name: Extract ipxe.tar.gz
