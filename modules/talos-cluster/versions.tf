@@ -13,10 +13,5 @@ terraform {
       source  = "hashicorp/helm"
       version = "2.17.0"
     }
-    #cilium = {
-    #  source  = "littlejo/cilium"
-    #  version = "0.2.14"
-    #}
-
   }
 }
