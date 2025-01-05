@@ -51,6 +51,17 @@ func TestTalosClusterSingleNode(t *testing.T) {
 			t.Parallel()
 			validateKubernetesVersionConfig(t, terraformOptions)
 		})
+
+		t.Run("validateHostnameUniqueness", func(t *testing.T) {
+			t.Parallel()
+			validateHostnameUniqueness(t, terraformOptions)
+		})
+
+		/*t.Run("validateMountPropagation", func(t *testing.T) {
+			t.Parallel()
+			waitLonghornEnvironmentCheckReady(t, terraformOptions)
+			validateMountPropagation(t, terraformOptions)
+		})*/
 	})
 }
 

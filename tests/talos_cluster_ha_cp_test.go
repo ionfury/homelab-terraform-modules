@@ -51,6 +51,11 @@ func TestTalosClusterHACP(t *testing.T) {
 			t.Parallel()
 			validateKubernetesVersionConfig(t, terraformOptions)
 		})
+
+		t.Run("validateHostnameUniqueness", func(t *testing.T) {
+			t.Parallel()
+			validateHostnameUniqueness(t, terraformOptions)
+		})
 	})
 }
 
