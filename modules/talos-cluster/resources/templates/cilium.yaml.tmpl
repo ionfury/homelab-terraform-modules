@@ -35,18 +35,18 @@ loadBalancer:
 operator:
   rollOutPods: true
   prometheus:
-    enabled: false
+    enabled: true
     serviceMonitor:
-      enabled: false
+      enabled: true
   dashboards:
-    enabled: false
-    #annotations:
-    #  grafana_folder: Network
+    enabled: true
+    annotations:
+      grafana_folder: Network
 prometheus:
-  enabled: false
+  enabled: true
   serviceMonitor:
-    enabled: false
-    trustCRDsExist: false
+    enabled: true
+    trustCRDsExist: true
 k8sServiceHost: 127.0.0.1
 k8sServicePort: 7445
 rollOutCiliumPods: true

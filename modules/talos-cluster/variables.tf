@@ -40,6 +40,18 @@ variable "cilium_version" {
   default     = "1.16.5"
 }
 
+variable "prometheus_crd_version" {
+  description = "The version of the Prometheus CRD to use."
+  type        = string
+  default     = "17.0.2"
+}
+
+variable "spegal_version" {
+  description = "The version of Spegal to use."
+  type        = string
+  default     = "v0.0.28"
+}
+
 variable "talos_config_path" {
   description = "The path to the Talos configuration file."
   type        = string

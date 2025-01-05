@@ -37,6 +37,19 @@ data "talos_cluster_health" "this" {
   }
 }
 
+# This reports healthy when kube api is available.
+# tflint-ignore: terraform_unused_declarations
+data "talos_cluster_health" "available" {
+  client_configuration   = data.talos_client_configuration.this.client_configuration
+  endpoints              = local.controlplane_ips
+  control_plane_nodes    = local.controlplane_ips
+  skip_kubernetes_checks = true
+
+  timeouts = {
+    read = "10m"
+  }
+}
+
 resource "local_file" "kubeconfig" {
   content  = talos_cluster_kubeconfig.this.kubeconfig_raw
   filename = pathexpand("${var.kubernetes_config_path}/${var.name}")
