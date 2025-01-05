@@ -276,23 +276,6 @@ func validateTalosControlPlaneSchedulingConfig(t *testing.T, terraformOptions *t
 	}
 }
 
-func validateKubernetesVersionConfig(t *testing.T, terraformOptions *terraform.Options) {
-	kubeConfigPath := terraform.Output(t, terraformOptions, "kubernetes_config_file_path")
-
-	kubectlCmd := shell.Command{
-		Command: "kubectl",
-		Args:    []string{"--kubeconfig", kubeConfigPath, "version", "-o", "json"},
-	}
-
-	output, err := shell.RunCommandAndGetOutputE(t, kubectlCmd)
-	if err != nil {
-		t.Fatalf("Failed to run kubectl command: %v", err)
-	}
-
-	expectedVersion := "v" + terraformOptions.Vars["kubernetes_version"].(string)
-	assert.Equal(t, expectedVersion, gjson.Get(output, "serverVersion.gitVersion").String(), "Kubernetes version does not match the provided version")
-}
-
 func resetClusterToMaintenanceMode(t *testing.T, terraformOptions *terraform.Options) {
 	talosConfigPath := terraform.Output(t, terraformOptions, "talos_config_file_path")
 

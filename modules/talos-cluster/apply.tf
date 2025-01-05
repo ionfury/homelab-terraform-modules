@@ -60,6 +60,7 @@ resource "talos_machine_configuration_apply" "hosts" {
     }),
 
     file("${path.module}/resources/files/longhorn.yaml"),
+    file("${path.module}/resources/files/cluster_apiServer_disablePodSecurityPolicy.yaml"),
   ]
 }
 
