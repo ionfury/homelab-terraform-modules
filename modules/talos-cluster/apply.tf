@@ -46,7 +46,7 @@ resource "talos_machine_configuration_apply" "hosts" {
       interfaces  = each.value.interfaces
     }),
 
-    templatefile("${path.module}/resources/templates/cluster_network_cni.yaml.tmpl", {
+    templatefile("${path.module}/resources/templates/cluster_network.yaml.tmpl", {
       pod_subnet     = var.pod_subnet
       service_subnet = var.service_subnet
     }),
@@ -55,12 +55,15 @@ resource "talos_machine_configuration_apply" "hosts" {
       node_subnet = var.node_subnet
     }),
 
-    templatefile("${path.module}/resources/templates/cluster_inlineManifests.yaml.tmpl", {
-      manifests = data.helm_template.cilium.manifests
-    }),
+    #templatefile("${path.module}/resources/templates/cluster_inlineManifests.yaml.tmpl", {
+    #  manifests = data.helm_template.bootstrap.manifests
+    #}),
 
+    file("${path.module}/resources/files/cluster_coreDNS.yaml"),
+    file("${path.module}/resources/files/cluster_proxy.yaml"),
     file("${path.module}/resources/files/longhorn.yaml"),
     file("${path.module}/resources/files/cluster_apiServer_disablePodSecurityPolicy.yaml"),
+    file("${path.module}/resources/files/machine_files.yaml"),
   ]
 }
 
