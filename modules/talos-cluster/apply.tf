@@ -55,10 +55,6 @@ resource "talos_machine_configuration_apply" "hosts" {
       node_subnet = var.node_subnet
     }),
 
-    #templatefile("${path.module}/resources/templates/cluster_inlineManifests.yaml.tmpl", {
-    #  manifests = data.helm_template.bootstrap.manifests
-    #}),
-
     file("${path.module}/resources/files/cluster_coreDNS.yaml"),
     file("${path.module}/resources/files/cluster_proxy.yaml"),
     file("${path.module}/resources/files/longhorn.yaml"),

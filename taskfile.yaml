@@ -9,6 +9,7 @@ includes:
   terraform: .taskfiles/terraform
   github: .taskfiles/github
   test: .taskfiles/test
+  workstation: .taskfiles/workstation
   
 tasks:
   default:

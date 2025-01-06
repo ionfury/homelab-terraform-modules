@@ -1,4 +1,4 @@
-data "healthchecksio_channel" "discord" {
+/*data "healthchecksio_channel" "discord" {
   kind = "discord"
 }
 
@@ -16,3 +16,4 @@ resource "healthchecksio_check" "cluster_heartbeat" {
     data.healthchecksio_channel.discord.id
   ]
 }
+*/
