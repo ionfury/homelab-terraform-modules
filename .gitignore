@@ -32,7 +32,6 @@ Thumbs.db
 
 # IDE files
 .idea/
-.vscode/
 *.swp
 
 # Logs and debug files
@@ -86,3 +85,6 @@ override.tf.json
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Ignore Task checksum files
+.task

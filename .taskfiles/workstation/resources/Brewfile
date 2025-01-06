@@ -14,3 +14,19 @@ brew "sshpass"
 
 # CNI
 brew "cilium-cli"
+
+# Kubernetes
+tap "fluxcd/tap"
+brew "helm"
+brew "helmfile"
+
+# Task
+tap "go-task/tap"
+
+# Talos
+tap "siderolabs/tap"
+brew "siderolabs/tap/talosctl"
+
+# Misc
+brew "yq"
+brew "jq"

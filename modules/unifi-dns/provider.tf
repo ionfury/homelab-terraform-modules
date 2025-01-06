@@ -10,6 +10,7 @@ data "aws_ssm_parameter" "unifi_username" {
 data "aws_ssm_parameter" "unifi_password" {
   name = var.unifi.password_store
 }
+
 provider "unifi" {
   api_url        = var.unifi.address
   username       = data.aws_ssm_parameter.unifi_username.value
