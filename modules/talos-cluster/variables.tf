@@ -151,10 +151,6 @@ variable "hosts" {
         dhcp_routeMetric = number
       }))
     }))
-    ipmi = object({
-      ip  = string
-      mac = string
-    })
   }))
 
   default = {
@@ -180,10 +176,6 @@ variable "hosts" {
           dhcp_routeMetric = 100
         }]
       }]
-      ipmi = {
-        ip  = "192.168.10.231"
-        mac = "ac:1f:6b:68:2b:e1"
-      }
     }
   }
 

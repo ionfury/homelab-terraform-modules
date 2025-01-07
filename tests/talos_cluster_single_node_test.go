@@ -110,10 +110,6 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 					},
 				},
 			},
-			"ipmi": map[string]interface{}{
-				"ip":  "192.168.10.231",
-				"mac": "ac:1f:6b:68:2b:e1",
-			},
 		},
 	}
 
