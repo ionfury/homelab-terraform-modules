@@ -76,10 +76,7 @@ func createTalosClusterHACPOptions() *terraform.Options {
 	host_dns_forwardKubeDNSToHost := true
 	hosts := map[string]interface{}{
 		"node44": map[string]interface{}{
-			"cluster": map[string]interface{}{
-				"member": clusterName,
-				"role":   "controlplane",
-			},
+			"role": "controlplane",
 			"install": map[string]interface{}{
 				"diskSelector":    []string{"type: 'ssd'"},
 				"extraKernelArgs": []string{"apparmor=0"},
@@ -105,10 +102,7 @@ func createTalosClusterHACPOptions() *terraform.Options {
 			},
 		},
 		"node45": map[string]interface{}{
-			"cluster": map[string]interface{}{
-				"member": clusterName,
-				"role":   "controlplane",
-			},
+			"role": "controlplane",
 			"install": map[string]interface{}{
 				"diskSelector":    []string{"type: 'ssd'"},
 				"extraKernelArgs": []string{"apparmor=0"},
@@ -134,10 +128,7 @@ func createTalosClusterHACPOptions() *terraform.Options {
 			},
 		},
 		"node46": map[string]interface{}{
-			"cluster": map[string]interface{}{
-				"member": clusterName,
-				"role":   "controlplane",
-			},
+			"role": "controlplane",
 			"install": map[string]interface{}{
 				"diskSelector":    []string{"type: 'ssd'"},
 				"extraKernelArgs": []string{"apparmor=0"},

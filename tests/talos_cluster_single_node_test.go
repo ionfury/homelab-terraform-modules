@@ -83,10 +83,7 @@ func createTalosClusterSingleNodeOptions() *terraform.Options {
 	// TODO: Reference this directly.
 	hosts := map[string]interface{}{
 		"node46": map[string]interface{}{
-			"cluster": map[string]interface{}{
-				"member": clusterName,
-				"role":   "controlplane",
-			},
+			"role": "controlplane",
 			"install": map[string]interface{}{
 				"diskSelector":    []string{"type: 'ssd'"},
 				"extraKernelArgs": []string{"apparmor=0"},

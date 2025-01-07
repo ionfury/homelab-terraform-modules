@@ -34,13 +34,8 @@ type Install struct {
 	Platform        string   `mapstructure:"platform"`
 }
 
-type Cluster struct {
-	Member string `mapstructure:"member"`
-	Role   string `mapstructure:"role"`
-}
-
 type Host struct {
-	Cluster    Cluster     `mapstructure:"cluster"`
+	Role       string      `mapstructure:"role"`
 	Install    Install     `mapstructure:"install"`
 	Interfaces []Interface `mapstructure:"interfaces"`
 }
