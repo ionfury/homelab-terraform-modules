@@ -5,9 +5,5 @@ terraform {
       source  = "hashicorp/aws"
       version = "5.80.0"
     }
-    unifi = {
-      source  = "paultyng/unifi"
-      version = "0.41.0"
-    }
   }
 }

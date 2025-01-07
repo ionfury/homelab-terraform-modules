@@ -19,8 +19,12 @@ tasks:
     desc: Tests creating a single node talos cluster.
     cmds:
       - (cd tests && go test -v -timeout 10m -run TestTalosClusterSingleNode)
+    preconditions:
+      - which go
 
   talos-cluster-ha-cp:
     desc: Tests creating a high availability control plane talos cluster.
     cmds:
       - (cd tests && go test -v -timeout 10m -run TestTalosClusterHACP)
+    preconditions:
+      - which go
