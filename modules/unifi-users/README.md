@@ -43,8 +43,8 @@ No outputs.
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.6.6 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~>5.80.0 |
-| <a name="requirement_unifi"></a> [unifi](#requirement\_unifi) | ~>0.41.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | 5.80.0 |
+| <a name="requirement_unifi"></a> [unifi](#requirement\_unifi) | 0.41.0 |
 
 ## Providers
 
@@ -61,9 +61,9 @@ No modules.
 
 | Name | Type |
 |------|------|
-| [unifi_user.user](https://registry.terraform.io/providers/paultyng/unifi/latest/docs/resources/user) | resource |
-| [aws_ssm_parameter.unifi_password](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
-| [aws_ssm_parameter.unifi_username](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/ssm_parameter) | data source |
+| [unifi_user.user](https://registry.terraform.io/providers/paultyng/unifi/0.41.0/docs/resources/user) | resource |
+| [aws_ssm_parameter.unifi_password](https://registry.terraform.io/providers/hashicorp/aws/5.80.0/docs/data-sources/ssm_parameter) | data source |
+| [aws_ssm_parameter.unifi_username](https://registry.terraform.io/providers/hashicorp/aws/5.80.0/docs/data-sources/ssm_parameter) | data source |
 
 ## Inputs
 
