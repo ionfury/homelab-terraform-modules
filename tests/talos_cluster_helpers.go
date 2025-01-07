@@ -24,11 +24,6 @@ type Interface struct {
 	VLANs           []VLAN   `mapstructure:"vlans"`
 }
 
-type IPMI struct {
-	IP  string `mapstructure:"ip"`
-	MAC string `mapstructure:"mac"`
-}
-
 type Install struct {
 	DiskSelector    string   `mapstructure:"diskSelector"`
 	ExtraKernelArgs string   `mapstructure:"extraKernelArgs"`
@@ -48,7 +43,6 @@ type Host struct {
 	Cluster    Cluster     `mapstructure:"cluster"`
 	Install    Install     `mapstructure:"install"`
 	Interfaces []Interface `mapstructure:"interfaces"`
-	IPMI       IPMI        `mapstructure:"ipmi"`
 }
 
 type Hosts map[string]Host
