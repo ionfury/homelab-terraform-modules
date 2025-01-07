@@ -103,10 +103,6 @@ func createTalosClusterHACPOptions() *terraform.Options {
 					},
 				},
 			},
-			"ipmi": map[string]interface{}{
-				"ip":  "192.168.10.176",
-				"mac": "ac:1f:6b:68:2b:aa",
-			},
 		},
 		"node45": map[string]interface{}{
 			"cluster": map[string]interface{}{
@@ -136,10 +132,6 @@ func createTalosClusterHACPOptions() *terraform.Options {
 					},
 				},
 			},
-			"ipmi": map[string]interface{}{
-				"ip":  "192.168.10.141",
-				"mac": "ac:1f:6b:68:2a:4b",
-			},
 		},
 		"node46": map[string]interface{}{
 			"cluster": map[string]interface{}{
@@ -168,10 +160,6 @@ func createTalosClusterHACPOptions() *terraform.Options {
 						},
 					},
 				},
-			},
-			"ipmi": map[string]interface{}{
-				"ip":  "192.168.10.231",
-				"mac": "ac:1f:6b:68:2b:e1",
 			},
 		},
 	}
