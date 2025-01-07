@@ -1,6 +1,6 @@
 locals {
-  bootstrap_node     = [for host_key, host in var.hosts : host_key if host.cluster.role == "controlplane"][0]
-  bootstrap_endpoint = [for host_key, host in var.hosts : host.interfaces[0].addresses[0] if host.cluster.role == "controlplane"][0]
+  bootstrap_node     = [for host_key, host in var.hosts : host_key if host.role == "controlplane"][0]
+  bootstrap_endpoint = [for host_key, host in var.hosts : host.interfaces[0].addresses[0] if host.role == "controlplane"][0]
 }
 
 resource "talos_machine_configuration_apply" "hosts" {
@@ -12,7 +12,7 @@ resource "talos_machine_configuration_apply" "hosts" {
   endpoint                    = each.value.interfaces[0].addresses[0]
 
   config_patches = [
-    each.value.cluster.role == "controlplane" ? templatefile("${path.module}/resources/templates/cluster_allowSchedulingOnControlPlanes.yaml.tmpl", {
+    each.value.role == "controlplane" ? templatefile("${path.module}/resources/templates/cluster_allowSchedulingOnControlPlanes.yaml.tmpl", {
       allow_scheduling_on_controlplane = var.allow_scheduling_on_controlplane
     }) : null,
 

@@ -127,10 +127,7 @@ variable "host_dns_forwardKubeDNSToHost" {
 variable "hosts" {
   description = "A map of current hosts from which to build the Talos cluster."
   type = map(object({
-    cluster = object({
-      member = string
-      role   = string
-    })
+    role = string
     install = object({
       diskSelector    = list(string) # https://www.talos.dev/v1.9/reference/configuration/v1alpha1/config/#Config.machine.install.diskSelector
       extraKernelArgs = optional(list(string), [])
@@ -155,10 +152,7 @@ variable "hosts" {
 
   default = {
     node46 = {
-      cluster = {
-        member = "cluster"
-        role   = "controlplane"
-      }
+      role = "controlplane"
       install = {
         diskSelector    = ["type: 'ssd'"]
         extraKernelArgs = ["apparmor=0"]
@@ -180,7 +174,7 @@ variable "hosts" {
   }
 
   validation {
-    condition     = alltrue([for host in var.hosts : host.cluster.role == "worker" || host.cluster.role == "controlplane" || host.cluster.role == "null"])
-    error_message = "The cluster.role must be either 'worker', 'controlplane', or 'null'."
+    condition     = alltrue([for host in var.hosts : host.role == "worker" || host.role == "controlplane"])
+    error_message = "The host role must be either 'worker', 'controlplane'."
   }
 }
